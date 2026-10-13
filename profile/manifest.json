@@ -1,0 +1,9 @@
+{
+  "id": "profile",
+  "version": "1.0.0",
+  "title": "Profile",
+  "publisher": "Appshell",
+  "engines": { "appshell": "^0.1" },
+  "entry": { "ui": "index.html" },
+  "widgets": [{ "id": "summary", "title": "Profile" }]
+}

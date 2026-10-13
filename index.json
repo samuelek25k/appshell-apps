@@ -1,6 +1,4 @@
 {
-  "format": 0,
-  "apps": [
-    { "id": "profile", "path": "profile", "version": "1.0.0", "core": true }
-  ]
+  "format": 1,
+  "apps": []
 }

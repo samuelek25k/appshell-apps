@@ -1,0 +1,53 @@
+# Tag <app-id>-v<version> to release an app: package it, publish a GitHub release,
+# and record the release in index.json on main.
+name: release-app
+on:
+  push:
+    tags: ['*-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Package
+        id: pkg
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          id="${TAG%-v*}"; version="${TAG##*-v}"
+          test -f "$id/manifest.json" || { echo "::error::no app folder $id"; exit 1; }
+          git checkout "$TAG" -- "$id"
+          manifest_version=$(node -p "require('./$id/manifest.json').version")
+          [ "$manifest_version" = "$version" ] || { echo "::error::$id/manifest.json is $manifest_version, tag says $version"; exit 1; }
+          file="$id-$version.tgz"
+          # Regular files only; the host refuses links anyway.
+          tar --exclude=.git --owner=0 --group=0 --numeric-owner -czf "$file" -C "$id" .
+          echo "id=$id" >> "$GITHUB_OUTPUT"; echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "file=$file" >> "$GITHUB_OUTPUT"; echo "sha256=$(sha256sum "$file" | cut -c1-64)" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse "$TAG^{commit}")" >> "$GITHUB_OUTPUT"
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" "${{ steps.pkg.outputs.file }}" --title "${{ github.ref_name }}" --notes "sha256 ${{ steps.pkg.outputs.sha256 }}"
+      - name: Record in catalog
+        env:
+          ID: ${{ steps.pkg.outputs.id }}
+          VERSION: ${{ steps.pkg.outputs.version }}
+          SHA256: ${{ steps.pkg.outputs.sha256 }}
+          COMMIT: ${{ steps.pkg.outputs.commit }}
+          URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ steps.pkg.outputs.file }}
+          REPOSITORY: https://github.com/${{ github.repository }}
+        run: |
+          git checkout -- . && git clean -fdq
+          node scripts/catalog-add.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "catalog: $ID $VERSION"
+          git push origin HEAD:main

@@ -27,8 +27,8 @@ jobs:
           manifest_version=$(node -p "require('./$id/manifest.json').version")
           [ "$manifest_version" = "$version" ] || { echo "::error::$id/manifest.json is $manifest_version, tag says $version"; exit 1; }
           file="$id-$version.tgz"
-          # Regular files only; the host refuses links anyway.
-          tar --exclude=.git --owner=0 --group=0 --numeric-owner -czf "$file" -C "$id" .
+          # Regular files only (the host refuses links anyway); store listing assets stay out.
+          tar --exclude=.git --exclude=./store --owner=0 --group=0 --numeric-owner -czf "$file" -C "$id" .
           echo "id=$id" >> "$GITHUB_OUTPUT"; echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "file=$file" >> "$GITHUB_OUTPUT"; echo "sha256=$(sha256sum "$file" | cut -c1-64)" >> "$GITHUB_OUTPUT"
           echo "commit=$(git rev-parse "$TAG^{commit}")" >> "$GITHUB_OUTPUT"

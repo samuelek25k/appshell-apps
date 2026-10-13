@@ -1,0 +1,11 @@
+{
+  "name": "EK Workspace Apps",
+  "tagline": "Apps for EK Workspace, released from source and verified on install.",
+  "catalog": "index.json",
+  "install": {
+    "type": "desktop-link",
+    "protocol": "ekworkspace",
+    "productName": "EK Workspace",
+    "downloadUrl": "https://github.com/samuelek25k/appshell/releases"
+  }
+}

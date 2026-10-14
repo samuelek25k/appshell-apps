@@ -1,0 +1,12 @@
+{
+  "id": "markdown-preview",
+  "version": "0.1.0",
+  "title": "Markdown Studio",
+  "publisher": "Appshell",
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  }
+}

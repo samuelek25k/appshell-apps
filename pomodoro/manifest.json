@@ -1,0 +1,21 @@
+{
+  "id": "pomodoro",
+  "version": "0.1.0",
+  "title": "Pomodoro Timer",
+  "publisher": "Appshell",
+  "capabilities": {
+    "notifications": true
+  },
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "active-timer",
+      "title": "Pomodoro Clock"
+    }
+  ]
+}

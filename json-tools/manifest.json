@@ -1,0 +1,15 @@
+{
+  "id": "json-tools",
+  "version": "0.1.0",
+  "title": "JSON Formatter",
+  "publisher": "Appshell",
+  "capabilities": {
+    "network": []
+  },
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  }
+}

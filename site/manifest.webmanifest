@@ -1,0 +1,17 @@
+{
+  "name": "Appshell Store",
+  "short_name": "Appshell",
+  "description": "Curated developer apps for Appshell, verified and sandboxed.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [
+    {
+      "src": "mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

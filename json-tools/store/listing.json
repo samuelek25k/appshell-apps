@@ -1,0 +1,16 @@
+{
+  "description": "Fast, private JSON formatting, validation, linting, and JWT decoding entirely offline. Never paste sensitive customer payloads or credentials into third-party web formatters again.",
+  "categories": [
+    "Developer Tools",
+    "Utilities"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Private offline JSON formatting & linting.",
+  "accent": "#0ea5e9",
+  "highlights": [
+    "Format, minify, and query with JMESPath",
+    "Validates schema and syntax errors instantly",
+    "100% offline with zero network egress"
+  ],
+  "whatsNew": "Initial release with syntax highlighting and tree view."
+}

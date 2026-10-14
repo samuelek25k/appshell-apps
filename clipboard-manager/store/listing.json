@@ -1,0 +1,16 @@
+{
+  "description": "Keep recent snippets, links, and code fragments at your fingertips with local search. Pin common boilerplate texts and paste with instant keyboard shortcuts.",
+  "categories": [
+    "Productivity",
+    "Utilities"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Local clipboard history and pinned snippets.",
+  "accent": "#10b981",
+  "highlights": [
+    "Instant fuzzy search across clipboard history",
+    "Pinned snippets for boilerplate and code",
+    "Strictly encrypted on your local machine"
+  ],
+  "whatsNew": "Initial release."
+}

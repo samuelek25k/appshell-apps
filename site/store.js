@@ -124,28 +124,36 @@ function scroller(track, label) {
   return { track, controls };
 }
 
-/** Featured apps: spotlight carousel with sharp styling */
+/** Featured apps: full-width hero slider with sharp styling */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
-  const featured = apps.filter((a) => a.screenshots.length).sort((a, b) => rank(a) - rank(b)).slice(0, 5);
+  const featured = apps.filter((a) => a.screenshots?.length || a.icon).sort((a, b) => rank(a) - rank(b)).slice(0, 6);
   if (!featured.length) return '';
-  const slides = featured.map((app) => accent(app, el('a', { class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 sm:p-10 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700', href: appLink(app) }, [
-    el('div', { class: 'lg:col-span-5 flex flex-col items-start z-10' }, [
-      el('span', { class: 'inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md mb-4' }, [category(app)]),
-      el('h2', { class: 'text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2' }, [app.title]),
-      el('p', { class: 'text-base sm:text-lg font-medium text-slate-200 mb-3' }, [app.tagline ?? '']),
-      el('p', { class: 'text-sm text-slate-400 line-clamp-3 mb-6 max-w-prose leading-relaxed' }, [app.description ?? '']),
-      el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 bg-white text-slate-900 font-semibold text-sm shadow-md transition-all group-hover:bg-slate-100 group-hover:gap-3' }, [
-        released(app) ? 'View & Install' : 'Inspect App',
+  
+  const slides = featured.map((app) => accent(app, el('a', {
+    class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 sm:p-12 md:p-14 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700 w-full',
+    href: appLink(app)
+  }, [
+    el('div', { class: 'lg:col-span-6 flex flex-col items-start z-10' }, [
+      el('div', { class: 'flex items-center gap-2 mb-4' }, [
+        el('span', { class: 'inline-flex items-center px-3 py-1 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md' }, [category(app)]),
+        badge(app),
+      ]),
+      el('h2', { class: 'text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3' }, [app.title]),
+      el('p', { class: 'text-base sm:text-xl font-medium text-slate-200 mb-3' }, [app.tagline ?? '']),
+      el('p', { class: 'text-sm sm:text-base text-slate-400 line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
+      el('span', { class: 'inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-950 font-bold text-sm shadow-md transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
+        released(app) ? 'Get & Install App' : 'Inspect Specifications',
         el('span', {}, ['→'])
       ]),
     ]),
-    el('div', { class: 'lg:col-span-7 w-full' }, [
-      framed(app.screenshots[0]),
+    el('div', { class: 'lg:col-span-6 w-full flex justify-center' }, [
+      app.screenshots?.length ? framed(app.screenshots[0]) : icon(app, 'large')
     ]),
   ])));
-  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] gap-4 overflow-x-auto pb-4 scroll-smooth' }, slides), 'featured app');
+
+  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] gap-6 overflow-x-auto pb-4 scroll-smooth w-full' }, slides), 'featured app');
   const offset = (/** @type {HTMLElement} */ s) => s.offsetLeft - track.offsetLeft;
   const dots = slides.map((slide, i) => {
     const d = el('button', { type: 'button', class: 'dot', 'aria-label': `Show ${featured[i].title}` });
@@ -156,13 +164,13 @@ function spotlight(apps) {
     const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
   });
-  return el('section', { class: 'mb-10 space-y-4', 'aria-label': 'Featured spotlight' }, [
+  return el('section', { class: 'w-full mb-12 space-y-4', 'aria-label': 'Featured apps' }, [
     track,
-    slides.length > 1 ? el('div', { class: 'flex items-center justify-between pt-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
+    slides.length > 1 ? el('div', { class: 'flex items-center justify-between px-2 pt-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
   ]);
 }
 
-/** Marketplace Card (IndustryApps inspired sharp card) */
+/** Unified Marketplace Card (used for all shelves and search results) */
 const tile = (app) => el('a', {
   class: 'group flex flex-col justify-between p-5 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 shadow-sm hover:shadow-md transition-all no-underline text-inherit',
   href: appLink(app)
@@ -173,17 +181,17 @@ const tile = (app) => el('a', {
       badge(app),
     ]),
     el('h3', { class: 'font-bold text-base text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors' }, [app.title]),
-    el('p', { class: 'mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed' }, [app.tagline ?? app.description ?? '']),
+    el('p', { class: 'mt-1.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed' }, [app.tagline ?? app.description ?? '']),
   ]),
   el('div', { class: 'mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400' }, [
-    el('span', { class: 'font-medium' }, [category(app)]),
-    el('span', { class: 'font-mono text-[11px]' }, [status(app)]),
+    el('span', { class: 'font-semibold text-slate-700 dark:text-slate-300' }, [category(app)]),
+    el('span', { class: 'font-mono text-[11px] text-slate-400' }, [status(app)]),
   ]),
 ]);
 
 function shelf(title, apps, href) {
   if (!apps.length) return '';
-  return el('section', { class: 'mb-12' }, [
+  return el('section', { class: 'mb-12 w-full' }, [
     el('div', { class: 'flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80 dark:border-slate-800/80' }, [
       el('div', { class: 'flex items-baseline gap-3' }, [
         el('h2', { class: 'text-xl font-bold tracking-tight text-slate-900 dark:text-white' }, [title]),
@@ -211,7 +219,7 @@ function chips(current = '') {
     href,
     'aria-current': on ? 'page' : 'false'
   }, [label]);
-  return el('nav', { class: 'flex items-center gap-2 overflow-x-auto py-2 mb-8 scrollbar-none', 'aria-label': 'Categories' }, [
+  return el('nav', { class: 'flex items-center gap-2 overflow-x-auto py-2 mb-8 scrollbar-none w-full', 'aria-label': 'Categories' }, [
     chip('All apps', '#/', !current),
     ...all.map((c) => chip(c, `#/category/${encodeURIComponent(c)}`, c === current)),
   ]);
@@ -221,31 +229,7 @@ function renderHome() {
   const apps = state.apps;
   if (!apps.length) return [el('p', { class: 'text-center py-20 text-slate-500' }, ['No apps in catalog yet.'])];
   
-  const hero = el('div', { class: 'py-8 sm:py-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6' }, [
-    el('div', { class: 'max-w-2xl' }, [
-      el('div', { class: 'inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-200/50 dark:border-brand-500/20 mb-4' }, [
-        el('span', { class: 'w-2 h-2 bg-emerald-500 animate-pulse' }),
-        'Live Static Catalog'
-      ]),
-      el('h1', { class: 'text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]' }, [state.config.name]),
-      el('p', { class: 'mt-3 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed' }, [state.config.tagline]),
-    ]),
-    el('div', { class: 'w-full md:w-auto min-w-[280px]' }, [
-      el('div', { class: 'relative' }, [
-        el('input', {
-          id: 'search-input',
-          type: 'search',
-          placeholder: 'Search apps or categories...',
-          value: state.query,
-          class: 'w-full px-4 py-2.5 pl-10 text-sm bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 dark:focus:border-brand-400 transition-all shadow-sm'
-        }),
-        el('span', { class: 'absolute left-3.5 top-3 text-slate-400' }, ['🔍']),
-      ])
-    ])
-  ]);
-
   const out = [
-    hero,
     spotlight(apps),
     chips(),
     shelf('Available Now', apps.filter(released)),
@@ -260,36 +244,22 @@ function renderHome() {
   return out;
 }
 
-const row = (app) => el('a', {
-  class: 'group flex items-center justify-between p-4 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm transition-all no-underline text-inherit',
-  href: appLink(app)
-}, [
-  el('div', { class: 'flex items-center gap-4 min-w-0' }, [
-    icon(app),
-    el('div', { class: 'min-w-0' }, [
-      el('h3', { class: 'font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate' }, [app.title]),
-      el('p', { class: 'text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5' }, [app.tagline ?? app.description ?? '']),
-      el('span', { class: 'text-[11px] text-slate-400 dark:text-slate-500' }, [`${category(app)} • ${status(app)}`]),
-    ]),
-  ]),
-  el('div', { class: 'ml-4 flex-shrink-0' }, [badge(app)]),
-]);
-
+// Search and List view: uses exact same card grid (`tile`) as the main store
 function renderList(title, apps, current) {
   return [
-    el('div', { class: 'py-6 flex items-center justify-between' }, [
+    el('div', { class: 'py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 mb-6' }, [
       el('div', {}, [
-        el('h1', { class: 'text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white' }, [title]),
-        el('p', { class: 'text-sm text-slate-500 mt-1' }, [`Showing ${apps.length} application${apps.length === 1 ? '' : 's'}`]),
+        el('h1', { class: 'text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white' }, [title]),
+        el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} application${apps.length === 1 ? '' : 's'} matching`]),
       ]),
-      el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline' }, ['← Back to store']),
+      el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline', onclick: () => { clearSearch(); } }, ['← Reset search']),
     ]),
     chips(current),
     apps.length
-      ? el('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-4' }, apps.map(row))
-      : el('div', { class: 'text-center py-16' }, [
-          el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps matching "${state.query}".` : 'No apps here yet.']),
-          el('button', { type: 'button', class: 'mt-3 text-xs font-semibold text-brand-600 hover:underline', onclick: () => { clearSearch(); route(); } }, ['Clear search']),
+      ? el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' }, apps.map(tile))
+      : el('div', { class: 'text-center py-20 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800' }, [
+          el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps found matching "${state.query}".` : 'No apps here yet.']),
+          el('button', { type: 'button', class: 'mt-3 px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900', onclick: () => { clearSearch(); route(); } }, ['Show all apps']),
         ]),
   ];
 }
@@ -570,25 +540,23 @@ function route() {
   } else view = renderHome();
   
   $('view').replaceChildren(...view.filter((n) => n !== ''));
-  
-  // Wire up hero search bar if rendered
-  const searchInput = $('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      state.query = e.target.value.trim();
-      route();
-    });
-  }
-
   if (!q) window.scrollTo(0, 0);
 }
 
 function clearSearch() {
   state.query = '';
+  const input = $('nav-search-input');
+  if (input) input.value = '';
+  const clearBtn = $('search-clear');
+  if (clearBtn) clearBtn.classList.add('hidden');
 }
 
 async function start() {
   setupTheme();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 
   state.config = await (await fetch('config.json')).json();
   const base = new URL(state.config.catalog, location.href).href;
@@ -597,6 +565,23 @@ async function start() {
   if (getProduct) {
     getProduct.href = state.config.install.downloadUrl;
     getProduct.textContent = `Get ${state.config.install.productName}`;
+  }
+
+  const navSearch = $('nav-search-input');
+  const searchClear = $('search-clear');
+  if (navSearch) {
+    navSearch.addEventListener('input', (e) => {
+      state.query = e.target.value.trim();
+      if (searchClear) searchClear.classList.toggle('hidden', !state.query);
+      if (location.hash.startsWith('#/app/')) history.replaceState(null, '', '#/');
+      route();
+    });
+  }
+  if (searchClear) {
+    searchClear.addEventListener('click', () => {
+      clearSearch();
+      route();
+    });
   }
 
   const load = (url) => fetch(url, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));

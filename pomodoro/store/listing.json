@@ -1,0 +1,16 @@
+{
+  "description": "Stay in deep focus with structured 25-minute intervals, ambient alerts, and custom break sessions. Integrates directly into your Appshell desktop dashboard widget for minimal distraction.",
+  "categories": [
+    "Productivity",
+    "Utilities"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Deep work intervals on your desktop.",
+  "accent": "#ef4444",
+  "highlights": [
+    "Configurable 25/5/15 minute cycles",
+    "Live desktop dashboard widget",
+    "Zero network requests & private storage"
+  ],
+  "whatsNew": "Initial release with desktop notifications."
+}

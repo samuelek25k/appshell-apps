@@ -6,6 +6,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https:; object-src 'none'; base-uri 'none'">
   <title>Appshell Store</title>
   <link rel="icon" type="image/svg+xml" href="mark.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#090d16">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -46,29 +48,33 @@
 </head>
 <body class="bg-[#f8fafc] text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
   
-  <!-- QRIMS inspired professional header with sharp edges -->
-  <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+  <!-- Top Navigation Header: Brand on left, Global Search in center, Theme & Actions on right -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+    <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       
-      <!-- Brand & Title with Status Accent Dot -->
-      <a class="flex items-center gap-2.5 font-bold text-lg tracking-tight text-slate-900 dark:text-white group" href="#/">
+      <!-- Brand & Title (Green dot removed) -->
+      <a class="flex items-center gap-2.5 font-bold text-lg tracking-tight text-slate-900 dark:text-white flex-shrink-0 group" href="#/">
         <img src="mark.svg" alt="Appshell" class="w-8 h-8 shadow-sm transition-transform group-hover:scale-105" width="32" height="32">
-        <span class="flex items-center gap-1">
-          <span class="font-extrabold uppercase tracking-wider text-base">Appshell</span>
-          <span class="w-1.5 h-1.5 bg-emerald-500 inline-block"></span>
-        </span>
+        <span class="font-extrabold uppercase tracking-wider text-base">Appshell</span>
       </a>
 
-      <!-- Quick Nav Links Inspired by QRIMS header -->
-      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600 dark:text-slate-300">
-        <a href="#/" class="hover:text-brand-600 dark:hover:text-white transition-colors">Apps</a>
-        <a href="#features" class="hover:text-brand-600 dark:hover:text-white transition-colors">Features</a>
-        <a href="#architecture" class="hover:text-brand-600 dark:hover:text-white transition-colors">Architecture</a>
-        <a href="#security" class="hover:text-brand-600 dark:hover:text-white transition-colors">Security</a>
-      </nav>
+      <!-- Search in Top Nav (replacing text menu) -->
+      <div class="flex-1 max-w-2xl mx-2 sm:mx-6">
+        <div class="relative w-full">
+          <input
+            id="nav-search-input"
+            type="search"
+            placeholder="Search applications, developer tools, categories..."
+            autocomplete="off"
+            class="w-full px-4 py-2 pl-10 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 dark:focus:border-brand-400 transition-all shadow-inner"
+          >
+          <span class="absolute left-3.5 top-2.5 text-slate-400 text-xs">🔍</span>
+          <span id="search-clear" class="hidden absolute right-3 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-xs font-mono font-bold">✕</span>
+        </div>
+      </div>
 
       <!-- Right Header Actions: Theme Toggle + Repo + Desktop App CTA -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         <!-- Dark / Light Theme Switcher Button -->
         <button type="button" id="theme-toggle" class="p-2 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Toggle theme">
           <!-- Sun Icon (shown in dark mode) -->
@@ -82,20 +88,20 @@
         </button>
 
         <!-- View GitHub Link -->
-        <a id="nav-github" href="https://github.com/samuelek25k/appshell-apps" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center px-4 py-1.5 text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          View GitHub
+        <a id="nav-github" href="https://github.com/samuelek25k/appshell-apps" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center px-3.5 py-1.5 text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          GitHub
         </a>
 
         <!-- Primary Action -->
-        <a class="inline-flex items-center px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm" id="get-product" href="#" rel="noopener">
+        <a class="inline-flex items-center px-3.5 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm" id="get-product" href="#" rel="noopener">
           Get Appshell
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Main View Render Target -->
-  <main id="view" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-live="polite"></main>
+  <!-- Main View Render Target: Full-Width Container for Sliders and Content -->
+  <main id="view" class="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6" aria-live="polite"></main>
 
   <!-- Technical Explainer Anchor Sections (Features, Architecture, Security) -->
   <div class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/50 py-16">

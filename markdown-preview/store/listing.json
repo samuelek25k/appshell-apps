@@ -1,0 +1,16 @@
+{
+  "description": "Distraction-free Markdown and LaTeX editor with live GitHub-flavored preview, table generators, Mermaid diagrams, and instant export to PDF or HTML.",
+  "categories": [
+    "Productivity",
+    "Developer Tools"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "GitHub Flavored Markdown with live Mermaid diagrams.",
+  "accent": "#6366f1",
+  "highlights": [
+    "Live side-by-side split editor",
+    "Mermaid architecture and flowchart rendering",
+    "Export cleanly to styled PDF or HTML"
+  ],
+  "whatsNew": "Initial release with Mermaid and KaTeX support."
+}

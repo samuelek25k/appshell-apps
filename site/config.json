@@ -10,7 +10,11 @@
   },
   "featured": [
     "quick-notes",
+    "pomodoro",
+    "json-tools",
+    "color-picker",
     "world-clock",
+    "markdown-preview",
     "welcome"
   ]
 }

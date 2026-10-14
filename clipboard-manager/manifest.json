@@ -1,0 +1,18 @@
+{
+  "id": "clipboard-manager",
+  "version": "0.1.0",
+  "title": "Clipboard History",
+  "publisher": "Appshell",
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "recent-clips",
+      "title": "Recent Clips"
+    }
+  ]
+}

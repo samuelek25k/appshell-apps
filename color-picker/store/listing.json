@@ -1,0 +1,16 @@
+{
+  "description": "Inspect, convert, and harmonize colors across HEX, RGB, HSL, and modern OKLCH formats. Generate accessible WCAG contrast ratios and save design system palettes directly to your dashboard.",
+  "categories": [
+    "Design",
+    "Developer Tools"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Modern color palettes, OKLCH converter & WCAG checker.",
+  "accent": "#8b5cf6",
+  "highlights": [
+    "OKLCH, HEX, RGB, and HSL conversions",
+    "WCAG 2.1 AAA contrast audit score",
+    "Export to Tailwind CSS and CSS variables"
+  ],
+  "whatsNew": "Initial release with OKLCH gradient generators."
+}

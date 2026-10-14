@@ -1,12 +1,7 @@
 # appshell-apps
 
-Apps for [Appshell](https://github.com/samuelek25k/appshell) and the catalog that lists them.
+Apps for [Appshell](https://github.com/samuelek25k/appshell) and the catalog (`index.json`) that lists their releases.
 
-- `index.json`: the catalog. Format 0 lists app folders in this repository; Phase 1 adds release digests (decision D10).
-- One folder per app with a `manifest.json` that validates against Appshell's `manifest.schema.json`.
-
-Run an app locally from a sibling `appshell` checkout:
-
-```
-pnpm start   # in appshell; loads apps from ../appshell-apps
-```
+- One folder per app, with a `manifest.json`. Pre-installed core apps (such as `profile`) ship inside the product and are not in the catalog.
+- Release an app: bump `version` in its manifest, merge, then push a tag `<app-id>-v<version>`. `release-app.yml` packages the folder, publishes a GitHub release and records it in `index.json`. Versions with a prerelease (`1.2.0-beta.1`) go to the beta channel.
+- New app: `pnpm appshell create <app-id> --id <app-id>` from an `appshell` checkout.

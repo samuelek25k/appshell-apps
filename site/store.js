@@ -80,35 +80,64 @@ function merge(catalog, catalogBase, listings) {
 
 // ---- Home ----------------------------------------------------------------
 
+/** A screenshot in a desktop window frame, so app shots read as an app rather than a blank page. */
+const framed = (src, alt = '') => el('div', { class: 'window' }, [
+  el('div', { class: 'window-bar', 'aria-hidden': 'true' }, [el('span'), el('span'), el('span')]),
+  el('img', { src, alt, loading: 'lazy' }),
+]);
+
+/** Featured banner: one app at a time, with tabs to switch. No auto-rotation. */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
   const featured = apps.filter((a) => a.screenshots.length).sort((a, b) => rank(a) - rank(b)).slice(0, 4);
   if (!featured.length) return '';
-  return el('section', { class: 'spotlight', 'aria-label': 'Featured apps' }, featured.map((app) =>
-    accent(app, el('a', { class: 'spot', href: appLink(app) }, [
-      el('div', { class: 'spot-text' }, [
-        el('span', { class: 'spot-kind' }, [released(app) ? category(app) : status(app)]),
+  const stage = el('div', { class: 'feature-stage', id: 'feature-stage' });
+  const tabs = featured.map((app, i) => {
+    const t = el('button', { type: 'button', class: 'feature-tab', role: 'tab', 'aria-controls': 'feature-stage' }, [
+      icon(app), el('span', {}, [el('strong', {}, [app.title]), el('span', {}, [app.tagline ?? category(app)])]),
+    ]);
+    t.addEventListener('click', () => show(i));
+    return t;
+  });
+  const show = (i) => {
+    const app = featured[i];
+    tabs.forEach((t, j) => t.setAttribute('aria-selected', String(i === j)));
+    accent(app, stage);
+    stage.replaceChildren(el('a', { class: 'feature', href: appLink(app) }, [
+      el('div', { class: 'feature-text' }, [
+        el('p', { class: 'feature-kind' }, [released(app) ? category(app) : status(app)]),
         el('h2', {}, [app.title]),
-        el('p', {}, [app.tagline ?? app.description ?? '']),
-        el('span', { class: 'spot-cta' }, [released(app) ? 'Get the app' : 'See what it does']),
+        el('p', { class: 'feature-tagline' }, [app.tagline ?? '']),
+        el('p', { class: 'feature-desc' }, [app.description ?? '']),
+        el('span', { class: 'feature-cta' }, [released(app) ? 'View and install' : 'See what it does']),
       ]),
-      el('img', { class: 'spot-shot', src: app.screenshots[0], alt: '', loading: 'lazy' }),
-    ]))));
+      framed(app.screenshots[0]),
+    ]));
+  };
+  show(0);
+  return el('section', { class: 'featured', 'aria-label': 'Featured apps' }, [
+    stage,
+    featured.length > 1 ? el('div', { class: 'feature-tabs', role: 'tablist', 'aria-label': 'Featured apps' }, tabs) : '',
+  ]);
 }
 
 const tile = (app) => el('a', { class: 'tile', href: appLink(app) }, [
   icon(app),
-  el('span', { class: 'tile-title' }, [app.title]),
-  el('span', { class: 'tile-sub' }, [app.tagline ?? category(app)]),
+  el('span', { class: 'tile-text' }, [
+    el('span', { class: 'tile-title' }, [app.title]),
+    el('span', { class: 'tile-sub' }, [app.tagline ?? category(app)]),
+    el('span', { class: 'row-meta' }, [category(app)]),
+  ]),
   badge(app),
 ]);
 
-function shelf(title, apps, href) {
+function shelf(title, apps, href, limit = 6) {
   if (!apps.length) return '';
+  const more = apps.length > limit;
   return el('section', { class: 'shelf' }, [
-    el('div', { class: 'shelf-head' }, [el('h2', {}, [title]), href ? el('a', { href }, ['See all']) : '']),
-    el('div', { class: 'shelf-row' }, apps.map(tile)),
+    el('div', { class: 'shelf-head' }, [el('h2', {}, [title]), href && more ? el('a', { href }, [`See all ${apps.length}`]) : '']),
+    el('div', { class: 'cards' }, apps.slice(0, limit).map(tile)),
   ]);
 }
 
@@ -137,7 +166,7 @@ function renderHome() {
   ];
   for (const c of categories()) {
     const inCat = apps.filter((a) => (a.categories ?? []).includes(c));
-    if (inCat.length > 1) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
+    if (inCat.length > 3) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
   }
   out.push(shelf(`Included with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
   out.push(shelf('Coming soon', apps.filter((a) => !released(a) && !a.included)));
@@ -233,10 +262,8 @@ function versionHistory(app) {
 
 function gallery(app) {
   if (!app.screenshots.length) return '';
-  return el('div', { class: 'gallery', role: 'list' }, app.screenshots.map((src, i) => {
-    const b = el('button', { class: 'shot', type: 'button', role: 'listitem', 'aria-label': `Open screenshot ${i + 1}` }, [
-      el('img', { src, alt: `${app.title} screenshot ${i + 1}`, loading: 'lazy' }),
-    ]);
+  return el('div', { class: 'gallery' }, app.screenshots.slice(0, 4).map((src, i) => {
+    const b = el('button', { class: 'shot', type: 'button', 'aria-label': `Enlarge screenshot ${i + 1}` }, [framed(src, `${app.title} screenshot ${i + 1}`)]);
     b.addEventListener('click', () => openLightbox(app, i));
     return b;
   }));

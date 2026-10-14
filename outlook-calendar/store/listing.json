@@ -1,17 +1,17 @@
 {
-  "description": "Connect to your Microsoft 365 or Outlook account to view today's schedule, join Teams/Zoom meetings with a single click, and preview upcoming agendas directly on your Appshell dashboard widget.",
+  "description": "Read today's Outlook calendar directly from your local desktop without creating Azure App registrations or OAuth client secrets. Uses AppleScript on macOS and PowerShell COM automation on Windows. Zero network access required.",
   "categories": [
     "Productivity",
     "Utilities"
   ],
   "icon": "store/icon.svg",
-  "tagline": "Today's schedule and one-click meeting launcher.",
+  "tagline": "Local Outlook calendar reader via AppleScript & PowerShell.",
   "accent": "#0078d4",
   "highlights": [
-    "Secure Microsoft OAuth authentication",
-    "One-click join for Teams and Zoom calls",
-    "Live desktop dashboard schedule widget",
-    "Restricted network egress (graph.microsoft.com only)"
+    "No Azure App registration or Microsoft tenant admin consent",
+    "AppleScript integration on macOS",
+    "PowerShell COM automation on Windows",
+    "100% offline with zero external network requests"
   ],
-  "whatsNew": "Initial release with Microsoft Graph API calendar sync."
+  "whatsNew": "Native desktop script backend with zero registration overhead."
 }

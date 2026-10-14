@@ -4,22 +4,19 @@
   "title": "Outlook Today",
   "publisher": "Appshell",
   "capabilities": {
-    "network": [
-      "login.microsoftonline.com",
-      "graph.microsoft.com"
-    ],
-    "notifications": true
+    "network": []
   },
   "engines": {
     "appshell": "^0.1"
   },
   "entry": {
-    "ui": "ui/index.html"
+    "ui": "ui/index.html",
+    "backend": "backend/get-meetings.cjs"
   },
   "widgets": [
     {
       "id": "today-meetings",
-      "title": "Upcoming Meetings"
+      "title": "Today's Schedule"
     }
   ]
 }

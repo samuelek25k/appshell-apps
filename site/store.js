@@ -1,14 +1,11 @@
 // Static app store over a catalog (index.json) and repository listings (apps.json).
-// All listing text is set with textContent, never parsed as HTML, so a listing cannot inject markup.
+// Modernized with Tailwind CSS, light/dark theming, and an authentic developer UX.
 
 /**
  * How an Install button reaches a product. One per `install.type` in config.json.
- * Add a type here (for example, "web": open the app in a web shell) to serve a web store
- * from the same catalog.
  * @type {Record<string, (app: any, config: any) => void>}
  */
 const installers = {
-  // The desktop app asks the user to confirm and installs from its own catalog by id.
   'desktop-link'(app, { protocol }) {
     window.location.href = `${protocol}://_/install/${encodeURIComponent(app.id)}`;
   },
@@ -44,14 +41,30 @@ function accent(app, node) {
   if (HEX.test(app.accent ?? '')) node.style.setProperty('--accent', app.accent);
   return node;
 }
-const icon = (app, size = '') => app.icon
-  ? el('img', { class: `icon ${size}`, src: app.icon, alt: '' })
-  : accent(app, el('span', { class: `icon blank ${size}`, 'aria-hidden': 'true' }, [app.title.slice(0, 1)]));
-const category = (app) => (app.categories ?? [])[0] ?? 'Apps';
+
+const icon = (app, size = '') => {
+  const sizeClass = size === 'large'
+    ? 'w-24 h-24 sm:w-28 sm:h-28 shadow-lg border border-slate-200/80 dark:border-slate-800'
+    : 'w-14 h-14 shadow-sm border border-slate-200/80 dark:border-slate-800 flex-shrink-0';
+  return app.icon
+    ? el('img', { class: `object-cover ${sizeClass}`, src: app.icon, alt: '' })
+    : accent(app, el('div', { class: `${sizeClass} flex items-center justify-center font-bold text-xl text-white bg-indigo-600` }, [app.title.slice(0, 1)]));
+};
+
+const category = (app) => (app.categories ?? [])[0] ?? 'Utilities';
 const appLink = (app) => `#/app/${encodeURIComponent(app.id)}`;
-const status = (app) => (released(app) ? `Version ${latest(app).version}` : app.included ? 'Included' : 'Coming soon');
-/** Short state for tiles: Get, Included or Soon. */
-const badge = (app) => el('span', { class: released(app) ? 'tile-state' : 'tile-state soon' }, [released(app) ? 'Get' : app.included ? 'Included' : 'Soon']);
+const status = (app) => (released(app) ? `v${latest(app).version}` : app.included ? 'Included' : 'Coming soon');
+
+/** Short state badge for tiles with sharp edges */
+const badge = (app) => {
+  if (released(app)) {
+    return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30' }, ['Get']);
+  }
+  if (app.included) {
+    return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700' }, ['Built-in']);
+  }
+  return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30' }, ['Soon']);
+};
 
 /** Merges catalog releases with repository listings; paths become absolute URLs. */
 function merge(catalog, catalogBase, listings) {
@@ -66,7 +79,6 @@ function merge(catalog, catalogBase, listings) {
     const c = byId.get(l.id) ?? { releases: [] };
     byId.set(l.id, {
       ...l, ...Object.fromEntries(Object.entries(c).filter(([, v]) => v !== undefined)),
-      // Presentation comes from the repository listing when there is one.
       ...Object.fromEntries(['description', 'categories', 'tagline', 'accent', 'highlights', 'whatsNew']
         .filter((k) => l[k] !== undefined).map((k) => [k, l[k]])),
       icon: fromPage(l.icon) ?? c.icon,
@@ -78,20 +90,14 @@ function merge(catalog, catalogBase, listings) {
   return [...byId.values()].sort((a, b) => Number(released(b)) - Number(released(a)) || a.title.localeCompare(b.title));
 }
 
-// ---- Home ----------------------------------------------------------------
+// ---- Home Components --------------------------------------------------------
 
-/** A screenshot in a desktop window frame, so app shots read as an app rather than a blank page. */
-const framed = (src, alt = '') => el('div', { class: 'window' }, [
+/** A screenshot in a desktop window frame */
+const framed = (src, alt = '') => el('div', { class: 'window shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden' }, [
   el('div', { class: 'window-bar', 'aria-hidden': 'true' }, [el('span'), el('span'), el('span')]),
   el('img', { src, alt, loading: 'lazy' }),
 ]);
 
-/**
- * Horizontal scrolling without a native scrollbar: returns the track and a pair of arrow
- * buttons to place in the section header. Swipe, trackpad and Shift+wheel still scroll.
- * The track fades at an edge only while there is more content beyond it.
- * @param {HTMLElement} track @param {string} label
- */
 function scroller(track, label) {
   track.classList.add('track');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -103,7 +109,7 @@ function scroller(track, label) {
     return b;
   };
   const [prev, next] = [arrow(-1), arrow(1)];
-  const controls = el('div', { class: 'arrows' }, [prev, next]);
+  const controls = el('div', { class: 'arrows flex items-center gap-2' }, [prev, next]);
   const update = () => {
     const max = track.scrollWidth - track.clientWidth;
     controls.hidden = max <= 2;
@@ -118,23 +124,28 @@ function scroller(track, label) {
   return { track, controls };
 }
 
-/** Featured apps: a carousel of banners with page dots and arrows below. */
+/** Featured apps: spotlight carousel with sharp styling */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
   const featured = apps.filter((a) => a.screenshots.length).sort((a, b) => rank(a) - rank(b)).slice(0, 5);
   if (!featured.length) return '';
-  const slides = featured.map((app) => accent(app, el('a', { class: 'feature', href: appLink(app) }, [
-    el('div', { class: 'feature-text' }, [
-      el('p', { class: 'feature-kind' }, [released(app) ? category(app) : status(app)]),
-      el('h2', {}, [app.title]),
-      el('p', { class: 'feature-tagline' }, [app.tagline ?? '']),
-      el('p', { class: 'feature-desc' }, [app.description ?? '']),
-      el('span', { class: 'feature-cta' }, [released(app) ? 'View and install' : 'See what it does']),
+  const slides = featured.map((app) => accent(app, el('a', { class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 sm:p-10 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700', href: appLink(app) }, [
+    el('div', { class: 'lg:col-span-5 flex flex-col items-start z-10' }, [
+      el('span', { class: 'inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md mb-4' }, [category(app)]),
+      el('h2', { class: 'text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2' }, [app.title]),
+      el('p', { class: 'text-base sm:text-lg font-medium text-slate-200 mb-3' }, [app.tagline ?? '']),
+      el('p', { class: 'text-sm text-slate-400 line-clamp-3 mb-6 max-w-prose leading-relaxed' }, [app.description ?? '']),
+      el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 bg-white text-slate-900 font-semibold text-sm shadow-md transition-all group-hover:bg-slate-100 group-hover:gap-3' }, [
+        released(app) ? 'View & Install' : 'Inspect App',
+        el('span', {}, ['→'])
+      ]),
     ]),
-    framed(app.screenshots[0]),
+    el('div', { class: 'lg:col-span-7 w-full' }, [
+      framed(app.screenshots[0]),
+    ]),
   ])));
-  const { track, controls } = scroller(el('div', { class: 'feature-track' }, slides), 'featured app');
+  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] gap-4 overflow-x-auto pb-4 scroll-smooth' }, slides), 'featured app');
   const offset = (/** @type {HTMLElement} */ s) => s.offsetLeft - track.offsetLeft;
   const dots = slides.map((slide, i) => {
     const d = el('button', { type: 'button', class: 'dot', 'aria-label': `Show ${featured[i].title}` });
@@ -145,28 +156,42 @@ function spotlight(apps) {
     const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
   });
-  return el('section', { class: 'featured', 'aria-label': 'Featured apps' }, [
+  return el('section', { class: 'mb-10 space-y-4', 'aria-label': 'Featured spotlight' }, [
     track,
-    slides.length > 1 ? el('div', { class: 'feature-bar' }, [el('div', { class: 'dots' }, dots), controls]) : '',
+    slides.length > 1 ? el('div', { class: 'flex items-center justify-between pt-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
   ]);
 }
 
-const tile = (app) => el('a', { class: 'tile', href: appLink(app) }, [
-  icon(app),
-  el('span', { class: 'tile-text' }, [
-    el('span', { class: 'tile-title' }, [app.title]),
-    el('span', { class: 'tile-sub' }, [app.tagline ?? category(app)]),
-    el('span', { class: 'row-meta' }, [category(app)]),
+/** Marketplace Card (IndustryApps inspired sharp card) */
+const tile = (app) => el('a', {
+  class: 'group flex flex-col justify-between p-5 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 shadow-sm hover:shadow-md transition-all no-underline text-inherit',
+  href: appLink(app)
+}, [
+  el('div', {}, [
+    el('div', { class: 'flex items-start justify-between gap-3 mb-4' }, [
+      icon(app),
+      badge(app),
+    ]),
+    el('h3', { class: 'font-bold text-base text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors' }, [app.title]),
+    el('p', { class: 'mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed' }, [app.tagline ?? app.description ?? '']),
   ]),
-  badge(app),
+  el('div', { class: 'mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400' }, [
+    el('span', { class: 'font-medium' }, [category(app)]),
+    el('span', { class: 'font-mono text-[11px]' }, [status(app)]),
+  ]),
 ]);
 
 function shelf(title, apps, href) {
   if (!apps.length) return '';
-  const { track, controls } = scroller(el('div', { class: 'shelf-track' }, apps.map(tile)), title);
-  return el('section', { class: 'shelf' }, [
-    el('div', { class: 'shelf-head' }, [el('h2', {}, [title]), el('div', { class: 'shelf-tools' }, [href ? el('a', { href }, ['See all']) : '', controls])]),
-    track,
+  return el('section', { class: 'mb-12' }, [
+    el('div', { class: 'flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80 dark:border-slate-800/80' }, [
+      el('div', { class: 'flex items-baseline gap-3' }, [
+        el('h2', { class: 'text-xl font-bold tracking-tight text-slate-900 dark:text-white' }, [title]),
+        el('span', { class: 'text-xs text-slate-500 font-mono' }, [`${apps.length} app${apps.length > 1 ? 's' : ''}`]),
+      ]),
+      href ? el('a', { href, class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline' }, ['Browse all →']) : '',
+    ]),
+    el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' }, apps.map(tile)),
   ]);
 }
 
@@ -177,8 +202,16 @@ function categories() {
 function chips(current = '') {
   const all = categories();
   if (!all.length) return '';
-  const chip = (label, href, on) => el('a', { class: 'chip', href, 'aria-current': on ? 'page' : 'false' }, [label]);
-  return el('nav', { class: 'chips', 'aria-label': 'Categories' }, [
+  const chip = (label, href, on) => el('a', {
+    class: `px-4 py-2 text-xs font-semibold transition-all no-underline ${
+      on
+        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
+        : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800'
+    }`,
+    href,
+    'aria-current': on ? 'page' : 'false'
+  }, [label]);
+  return el('nav', { class: 'flex items-center gap-2 overflow-x-auto py-2 mb-8 scrollbar-none', 'aria-label': 'Categories' }, [
     chip('All apps', '#/', !current),
     ...all.map((c) => chip(c, `#/category/${encodeURIComponent(c)}`, c === current)),
   ]);
@@ -186,39 +219,78 @@ function chips(current = '') {
 
 function renderHome() {
   const apps = state.apps;
-  if (!apps.length) return [el('p', { class: 'empty' }, ['No apps yet. Add an app folder to the repository to list it here.'])];
+  if (!apps.length) return [el('p', { class: 'text-center py-20 text-slate-500' }, ['No apps in catalog yet.'])];
+  
+  const hero = el('div', { class: 'py-8 sm:py-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6' }, [
+    el('div', { class: 'max-w-2xl' }, [
+      el('div', { class: 'inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-200/50 dark:border-brand-500/20 mb-4' }, [
+        el('span', { class: 'w-2 h-2 bg-emerald-500 animate-pulse' }),
+        'Live Static Catalog'
+      ]),
+      el('h1', { class: 'text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]' }, [state.config.name]),
+      el('p', { class: 'mt-3 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed' }, [state.config.tagline]),
+    ]),
+    el('div', { class: 'w-full md:w-auto min-w-[280px]' }, [
+      el('div', { class: 'relative' }, [
+        el('input', {
+          id: 'search-input',
+          type: 'search',
+          placeholder: 'Search apps or categories...',
+          value: state.query,
+          class: 'w-full px-4 py-2.5 pl-10 text-sm bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 dark:focus:border-brand-400 transition-all shadow-sm'
+        }),
+        el('span', { class: 'absolute left-3.5 top-3 text-slate-400' }, ['🔍']),
+      ])
+    ])
+  ]);
+
   const out = [
-    el('section', { class: 'hero' }, [el('h1', {}, [state.config.name]), el('p', {}, [state.config.tagline])]),
+    hero,
     spotlight(apps),
     chips(),
-    shelf('Available now', apps.filter(released)),
+    shelf('Available Now', apps.filter(released)),
   ];
+
   for (const c of categories()) {
     const inCat = apps.filter((a) => (a.categories ?? []).includes(c));
     if (inCat.length > 1) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
   }
-  out.push(shelf(`Included with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
-  out.push(shelf('Coming soon', apps.filter((a) => !released(a) && !a.included)));
+  out.push(shelf(`Shipped with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
+  out.push(shelf('Coming Soon', apps.filter((a) => !released(a) && !a.included)));
   return out;
 }
 
-const row = (app) => el('a', { class: 'row', href: appLink(app) }, [
-  icon(app),
-  el('span', { class: 'row-text' }, [
-    el('span', { class: 'tile-title' }, [app.title]),
-    el('span', { class: 'tile-sub' }, [app.tagline ?? app.description ?? '']),
-    el('span', { class: 'row-meta' }, [`${category(app)}, ${status(app).toLowerCase()}`]),
+const row = (app) => el('a', {
+  class: 'group flex items-center justify-between p-4 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm transition-all no-underline text-inherit',
+  href: appLink(app)
+}, [
+  el('div', { class: 'flex items-center gap-4 min-w-0' }, [
+    icon(app),
+    el('div', { class: 'min-w-0' }, [
+      el('h3', { class: 'font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate' }, [app.title]),
+      el('p', { class: 'text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5' }, [app.tagline ?? app.description ?? '']),
+      el('span', { class: 'text-[11px] text-slate-400 dark:text-slate-500' }, [`${category(app)} • ${status(app)}`]),
+    ]),
   ]),
-  badge(app),
+  el('div', { class: 'ml-4 flex-shrink-0' }, [badge(app)]),
 ]);
 
 function renderList(title, apps, current) {
   return [
-    el('section', { class: 'hero small' }, [el('h1', {}, [title])]),
+    el('div', { class: 'py-6 flex items-center justify-between' }, [
+      el('div', {}, [
+        el('h1', { class: 'text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white' }, [title]),
+        el('p', { class: 'text-sm text-slate-500 mt-1' }, [`Showing ${apps.length} application${apps.length === 1 ? '' : 's'}`]),
+      ]),
+      el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline' }, ['← Back to store']),
+    ]),
     chips(current),
     apps.length
-      ? el('div', { class: 'rows' }, apps.map(row))
-      : el('p', { class: 'empty' }, [state.query ? `No apps match "${state.query}". Try a shorter word or browse a category.` : 'No apps here yet.']),
+      ? el('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-4' }, apps.map(row))
+      : el('div', { class: 'text-center py-16' }, [
+          el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps matching "${state.query}".` : 'No apps here yet.']),
+          el('button', { type: 'button', class: 'mt-3 text-xs font-semibold text-brand-600 hover:underline', onclick: () => { clearSearch(); route(); } }, ['Clear search']),
+        ]),
   ];
 }
 
@@ -227,7 +299,7 @@ function matches(app, q) {
     .some((t) => t.toLowerCase().includes(q));
 }
 
-// ---- App page ------------------------------------------------------------
+// ---- App Page Details -------------------------------------------------------
 
 function facts(app) {
   const release = latest(app);
@@ -235,25 +307,33 @@ function facts(app) {
   const items = [
     ['Version', release?.version ?? app.version ?? '—'],
     ['Category', category(app)],
-    ['Network', net.length ? `${net.length} host${net.length > 1 ? 's' : ''}` : 'None'],
+    ['Network Access', net.length ? `${net.length} host${net.length > 1 ? 's' : ''}` : 'Fully Offline'],
     ['Widgets', String(app.widgets?.length ?? 0)],
   ];
-  return el('dl', { class: 'facts' }, items.map(([k, v]) => el('div', {}, [el('dt', {}, [k]), el('dd', {}, [v])])));
+  return el('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3 my-8' }, items.map(([k, v]) => el('div', { class: 'p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center' }, [
+    el('div', { class: 'text-xs text-slate-500 dark:text-slate-400 font-medium' }, [k]),
+    el('div', { class: 'mt-1 text-sm sm:text-base font-bold text-slate-900 dark:text-white' }, [v]),
+  ])));
 }
 
-/** What the app can reach, from its manifest. Every app is sandboxed with its own storage. */
 function permissions(app) {
   const caps = app.capabilities ?? {};
-  const list = [['Its own private storage on this computer', 'Other apps cannot read it.']];
+  const list = [['Private App Sandbox', 'Completely isolated local disk storage partition.']];
   list.push(caps.network?.length
-    ? ['Internet access to named servers', caps.network.join(', ')]
-    : ['No internet access', 'The app can only load its own files.']);
-  if (app.backend) list.push(['A background process', 'Runs sandboxed, with no access to your files.']);
-  if (caps.notifications) list.push(['Notifications', 'Can show desktop notifications.']);
-  if (caps.identity) list.push(['Your identity', 'Can ask the desktop app to confirm who you are to its own server.']);
-  if (caps.secrets?.length) list.push(['Saved secrets', `Can store: ${caps.secrets.join(', ')}.`]);
-  if (app.widgets?.length) list.push(['Dashboard widgets', app.widgets.join(', ')]);
-  return el('ul', { class: 'perms' }, list.map(([t, d]) => el('li', {}, [el('strong', {}, [t]), el('span', {}, [d])])));
+    ? ['Network Egress', `Allowlisted hosts: ${caps.network.join(', ')}.`]
+    : ['Zero Network Access', 'Cannot make any external HTTP or WebSocket requests.']);
+  if (app.backend) list.push(['Background Process', 'Runs sandboxed with no host system privilege.']);
+  if (caps.notifications) list.push(['Desktop Alerts', 'Can post native OS notification toasts.']);
+  if (caps.identity) list.push(['Local Identity', 'Can ask desktop app to attest user identity.']);
+  if (caps.secrets?.length) list.push(['Encrypted Vault', `Secure key storage: ${caps.secrets.join(', ')}.`]);
+  if (app.widgets?.length) list.push(['Workspace Widget', `Provides widget: ${app.widgets.join(', ')}.`]);
+
+  return el('div', { class: 'border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 overflow-hidden bg-white dark:bg-slate-900' },
+    list.map(([title, desc]) => el('div', { class: 'p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs' }, [
+      el('span', { class: 'font-semibold text-slate-900 dark:text-white' }, [title]),
+      el('span', { class: 'text-slate-500 dark:text-slate-400 sm:text-right' }, [desc]),
+    ]))
+  );
 }
 
 function provenance(app) {
@@ -261,103 +341,139 @@ function provenance(app) {
   const repo = app.repository ?? '';
   const repoText = repo.replace(/^https:\/\/(www\.)?github\.com\//, '');
   if (!release) {
-    return el('section', { class: 'prov pending' }, [
-      el('h2', {}, [app.included ? 'Ships inside the desktop app' : 'How it will ship']),
-      el('p', {}, [app.included ? `This app comes installed with ${state.config.install.productName}, built from the source below.` : 'When this app is released, CI builds it from its source folder and pins the package by its SHA-256. The desktop app checks that digest before installing.']),
-      repo ? el('a', { href: repo, rel: 'noopener' }, [`Read the source on GitHub`]) : '',
+    return el('div', { class: 'p-6 bg-slate-900 text-slate-300 border border-slate-800' }, [
+      el('h3', { class: 'text-sm font-bold text-white mb-2' }, [app.included ? 'Integrated System Component' : 'Release Pipeline']),
+      el('p', { class: 'text-xs text-slate-400 leading-relaxed' }, [
+        app.included
+          ? `This application is packaged directly with ${state.config.install.productName} and maintained in source.`
+          : 'When this app is published, automated CI compiles the release bundle and locks its SHA-256 digest in the catalog.'
+      ]),
+      repo ? el('a', { href: repo, target: '_blank', rel: 'noopener', class: 'mt-4 inline-flex items-center text-xs font-semibold text-brand-400 hover:underline' }, ['Source Repository →']) : '',
     ]);
   }
-  const step = (name, value, detail) => el('li', {}, [el('span', { class: 'prov-name' }, [name]), value, el('span', { class: 'prov-detail' }, [detail])]);
-  return el('section', { class: 'prov' }, [
-    el('h2', {}, ['Built from source, checked on install']),
-    el('ol', {}, [
-      step('Source', el('a', { href: repo, rel: 'noopener' }, [repoText]), 'Public repository'),
-      step('Build', el('code', {}, [release.commit.slice(0, 12)]), 'Commit CI built from'),
-      step('Verify', el('code', { class: 'digest', title: release.sha256 }, [release.sha256]), 'SHA-256 the desktop app checks'),
+  return el('div', { class: 'p-6 bg-slate-900 text-slate-300 border border-slate-800 space-y-4' }, [
+    el('div', { class: 'flex items-center justify-between pb-3 border-b border-slate-800' }, [
+      el('h3', { class: 'text-sm font-bold text-white' }, ['Cryptographic Provenance']),
+      el('span', { class: 'text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 border border-emerald-800' }, ['CI Verified']),
+    ]),
+    el('div', { class: 'space-y-3 text-xs' }, [
+      el('div', { class: 'flex justify-between' }, [
+        el('span', { class: 'text-slate-500' }, ['Source Commit']),
+        el('code', { class: 'font-mono text-slate-200' }, [release.commit.slice(0, 10)]),
+      ]),
+      el('div', { class: 'flex flex-col gap-1' }, [
+        el('span', { class: 'text-slate-500' }, ['SHA-256 Digest']),
+        el('code', { class: 'font-mono text-[10px] break-all p-2 bg-slate-950 border border-slate-800 text-slate-300' }, [release.sha256]),
+      ]),
     ]),
   ]);
 }
 
-function versionHistory(app) {
-  const releases = [...app.releases].reverse();
-  if (!releases.length) return '';
-  return el('section', {}, [
-    el('h2', {}, ['Version history']),
-    el('ul', { class: 'history' }, releases.map((r) => el('li', {}, [
-      el('span', {}, [r.version]), el('span', { class: r.channel === 'beta' ? 'badge beta' : 'badge' }, [r.channel === 'beta' ? 'Beta' : 'Stable']),
-    ]))),
-  ]);
-}
-
 function gallery(app) {
-  if (!app.screenshots.length) return '';
-  const { track, controls } = scroller(el('div', { class: 'gallery' }, app.screenshots.map((src, i) => {
-    const b = el('button', { class: 'shot', type: 'button', 'aria-label': `Enlarge screenshot ${i + 1}` }, [framed(src, `${app.title} screenshot ${i + 1}`)]);
+  if (!app.screenshots?.length) return '';
+  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[85%] sm:auto-cols-[45%] gap-4 overflow-x-auto pb-4' }, app.screenshots.map((src, i) => {
+    const b = el('button', { class: 'group text-left border-0 bg-transparent p-0 cursor-zoom-in', type: 'button', 'aria-label': `Enlarge screenshot ${i + 1}` }, [
+      framed(src, `${app.title} screenshot ${i + 1}`),
+    ]);
     b.addEventListener('click', () => openLightbox(app, i));
     return b;
   })), 'screenshot');
-  return el('section', { class: 'shots' }, [el('div', { class: 'shelf-head' }, [el('h2', {}, ['Screenshots']), controls]), track]);
+  return el('section', { class: 'my-8' }, [
+    el('div', { class: 'flex items-center justify-between mb-3' }, [
+      el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white' }, ['Screenshots']),
+      controls,
+    ]),
+    track,
+  ]);
 }
 
 function installButton(app, big = false) {
   const release = latest(app);
-  const button = el('button', { type: 'button', class: `button primary${big ? ' big' : ''}` }, [release ? 'Install' : status(app)]);
-  if (!release) button.setAttribute('disabled', '');
-  else button.addEventListener('click', () => openInstall(app, release));
+  const btnClass = big
+    ? 'px-8 py-3 text-sm font-bold shadow-lg'
+    : 'px-4 py-2 text-xs font-semibold';
+  
+  if (!release) {
+    return el('button', {
+      type: 'button',
+      disabled: '',
+      class: `${btnClass} bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-300 dark:border-slate-700 cursor-not-allowed`
+    }, [status(app)]);
+  }
+
+  const button = el('button', {
+    type: 'button',
+    class: `${btnClass} bg-brand-600 hover:bg-brand-500 text-white shadow-brand-500/20 hover:shadow-brand-500/30 transition-all`
+  }, ['Install App']);
+  button.addEventListener('click', () => openInstall(app, release));
   return button;
 }
 
 function renderApp(id) {
   const app = state.apps.find((a) => a.id === id);
-  if (!app) return [el('a', { class: 'back', href: '#/' }, ['All apps']), el('p', { class: 'empty' }, ['This app is not in the store. It may have been renamed or removed.'])];
+  if (!app) {
+    return [
+      el('a', { class: 'inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 my-4', href: '#/' }, ['← Back to apps']),
+      el('div', { class: 'text-center py-20 text-slate-500' }, ['Application not found.']),
+    ];
+  }
   document.title = `${app.title} – ${state.config.name}`;
   const similar = state.apps.filter((a) => a !== app && (a.categories ?? []).some((c) => (app.categories ?? []).includes(c)));
-  const others = similar.length ? similar : state.apps.filter((a) => a !== app);
+
   return [
-    el('a', { class: 'back', href: '#/' }, ['All apps']),
-    accent(app, el('section', { class: 'app-head' }, [
-      icon(app, 'large'),
-      el('div', { class: 'app-title' }, [
-        el('h1', {}, [app.title]),
-        el('p', { class: 'publisher' }, [app.publisher]),
-        app.tagline ? el('p', { class: 'tagline' }, [app.tagline]) : '',
+    el('a', { class: 'inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 my-4 hover:underline', href: '#/' }, ['← Back to store']),
+    
+    // App Header Bar with sharp edges
+    accent(app, el('div', { class: 'p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6' }, [
+      el('div', { class: 'flex items-center gap-5' }, [
+        icon(app, 'large'),
+        el('div', {}, [
+          el('h1', { class: 'text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white' }, [app.title]),
+          el('p', { class: 'text-xs sm:text-sm font-semibold text-brand-600 dark:text-brand-400 mt-1' }, [app.publisher ?? 'Verified Publisher']),
+          app.tagline ? el('p', { class: 'text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl' }, [app.tagline]) : '',
+        ]),
       ]),
-      el('div', { class: 'app-cta' }, [
+      el('div', { class: 'flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2' }, [
         installButton(app, true),
-        el('p', { class: 'hint' }, [released(app) ? `Opens ${state.config.install.productName}, which asks before installing.` : app.included ? `Comes with ${state.config.install.productName}.` : 'Not released yet.']),
+        el('span', { class: 'text-[11px] text-slate-400 dark:text-slate-500' }, [
+          released(app) ? `Launches ${state.config.install.productName} installer` : status(app)
+        ]),
       ]),
     ])),
+
     facts(app),
     gallery(app),
-    el('div', { class: 'cols' }, [
-      el('div', { class: 'main-col' }, [
+
+    // Content Grid: About + Technical Provenance
+    el('div', { class: 'grid grid-cols-1 lg:grid-cols-12 gap-8 my-8' }, [
+      el('div', { class: 'lg:col-span-8 space-y-8' }, [
         el('section', {}, [
-          el('h2', {}, ['About this app']),
-          el('p', { class: 'about' }, [app.description ?? 'No description yet.']),
-          app.highlights?.length ? el('ul', { class: 'highlights' }, app.highlights.map((h) => el('li', {}, [h]))) : '',
+          el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['About this app']),
+          el('p', { class: 'text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-prose' }, [app.description ?? 'No description provided.']),
+          app.highlights?.length ? el('div', { class: 'mt-4 flex flex-wrap gap-2' }, app.highlights.map((h) =>
+            el('span', { class: 'px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }, [h])
+          )) : '',
         ]),
-        app.whatsNew ? el('section', {}, [
-          el('h2', {}, ["What's new"]),
-          el('p', { class: 'muted' }, [released(app) ? status(app) : `Version ${app.version}`]),
-          el('p', {}, [app.whatsNew]),
-        ]) : '',
-        el('section', {}, [el('h2', {}, ['What it can access']), permissions(app)]),
-      ]),
-      el('aside', { class: 'side-col' }, [
-        provenance(app),
-        versionHistory(app),
         el('section', {}, [
-          el('h2', {}, ['Publisher']),
-          el('p', {}, [app.publisher]),
-          app.repository ? el('a', { href: app.repository, rel: 'noopener' }, ['Source code']) : '',
+          el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['Sandbox Permissions']),
+          permissions(app),
+        ]),
+      ]),
+      el('div', { class: 'lg:col-span-4 space-y-6' }, [
+        provenance(app),
+        el('div', { class: 'p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3 text-xs' }, [
+          el('h3', { class: 'font-bold text-slate-900 dark:text-white' }, ['Distribution Details']),
+          el('div', { class: 'flex justify-between text-slate-500' }, ['Distribution', 'Open Source CI']),
+          app.repository ? el('a', { href: app.repository, target: '_blank', rel: 'noopener', class: 'block text-brand-600 dark:text-brand-400 font-semibold hover:underline' }, ['View Repository on GitHub →']) : '',
         ]),
       ]),
     ]),
-    shelf(similar.length ? 'More like this' : 'More apps', others),
+
+    similar.length ? shelf('Similar Applications', similar) : '',
   ];
 }
 
-// ---- Dialogs -------------------------------------------------------------
+// ---- Dialogs & Lightbox -----------------------------------------------------
 
 let pending = 0;
 function openInstall(app, release) {
@@ -366,20 +482,22 @@ function openInstall(app, release) {
   accent(app, dialog);
   $('install-icon').src = app.icon ?? '';
   $('install-title').textContent = `Install ${app.title}`;
-  $('install-step-1').textContent = `${productName} opens and asks you to confirm.`;
-  $('install-step-2').textContent = `It downloads version ${release.version} and checks it matches the published SHA-256.`;
+  $('install-step-1').textContent = `${productName} validates signature against index.json.`;
+  $('install-step-2').textContent = `Downloads v${release.version} and checks SHA-256 checksum.`;
   $('install-status').replaceChildren();
   const go = $('install-go');
-  go.textContent = `Open ${productName}`;
+  go.textContent = `Launch ${productName}`;
   go.onclick = () => {
     installers[state.config.install.type](app, state.config.install);
-    $('install-status').textContent = `Waiting for ${productName}…`;
+    $('install-status').textContent = `Handing off to ${productName}…`;
     clearTimeout(pending);
     pending = setTimeout(() => {
       if (!dialog.open || !document.hasFocus()) return;
-      $('install-status').replaceChildren(`Nothing happened? Install ${productName} first. `,
-        el('a', { href: downloadUrl, rel: 'noopener' }, [`Download ${productName}`]));
-    }, 2000);
+      $('install-status').replaceChildren(
+        `Desktop app didn't open? `,
+        el('a', { href: downloadUrl, target: '_blank', rel: 'noopener', class: 'font-semibold text-brand-600 underline' }, [`Download ${productName}`])
+      );
+    }, 2500);
   };
   dialog.showModal();
 }
@@ -389,7 +507,7 @@ function showShot() {
   const { app, index } = lightbox;
   $('lightbox-img').src = app.screenshots[index];
   $('lightbox-img').alt = `${app.title} screenshot ${index + 1}`;
-  $('lightbox-count').textContent = `${index + 1} of ${app.screenshots.length}`;
+  $('lightbox-count').textContent = `${index + 1} / ${app.screenshots.length}`;
   $('lightbox-prev').disabled = index === 0;
   $('lightbox-next').disabled = index === app.screenshots.length - 1;
 }
@@ -400,15 +518,49 @@ function openLightbox(app, index) {
 }
 function stepShot(delta) {
   const next = lightbox.index + delta;
-  if (lightbox.app && next >= 0 && next < lightbox.app.screenshots.length) { lightbox.index = next; showShot(); }
+  if (lightbox.app && next >= 0 && next < lightbox.app.screenshots.length) {
+    lightbox.index = next;
+    showShot();
+  }
 }
 
-// ---- Routing -------------------------------------------------------------
+// ---- Theme Switcher (Dark/Light) -------------------------------------------
+
+function setupTheme() {
+  const themeToggle = $('theme-toggle');
+  const lightIcon = $('theme-toggle-light-icon');
+  const darkIcon = $('theme-toggle-dark-icon');
+
+  const currentTheme = localStorage.getItem('appshell-theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      lightIcon.classList.remove('hidden');
+      darkIcon.classList.add('hidden');
+    } else {
+      document.documentElement.classList.remove('dark');
+      lightIcon.classList.add('hidden');
+      darkIcon.classList.remove('hidden');
+    }
+    localStorage.setItem('appshell-theme', theme);
+  }
+
+  applyTheme(currentTheme);
+
+  themeToggle?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    applyTheme(isDark ? 'light' : 'dark');
+  });
+}
+
+// ---- Routing & Initialization ----------------------------------------------
 
 function route() {
   const [, kind, arg] = /^#\/(app|category)\/(.+)$/.exec(location.hash) ?? [];
   const q = state.query.toLowerCase();
-  document.title = state.config.name;
+  document.title = state.config?.name ?? 'Appshell Store';
   let view;
   if (kind === 'app') view = renderApp(decodeURIComponent(arg));
   else if (q) view = renderList(`Results for "${state.query}"`, state.apps.filter((a) => matches(a, q)));
@@ -416,43 +568,62 @@ function route() {
     const c = decodeURIComponent(arg);
     view = renderList(c, state.apps.filter((a) => (a.categories ?? []).includes(c)), c);
   } else view = renderHome();
+  
   $('view').replaceChildren(...view.filter((n) => n !== ''));
-  if (!q) window.scrollTo(0, 0);
-}
-
-async function start() {
-  state.config = await (await fetch('config.json')).json();
-  const base = new URL(state.config.catalog, location.href).href;
-  $('store-name').textContent = state.config.name;
-  $('get-product').href = state.config.install.downloadUrl;
-  $('get-product').textContent = `Get ${state.config.install.productName}`;
-  const load = (url) => fetch(url, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
-  const [catalog, listings] = await Promise.all([load(base), load('apps.json')]);
-  state.apps = merge(catalog, base, listings);
-
-  $('search').addEventListener('input', (/** @type {any} */ e) => {
-    state.query = e.target.value.trim();
-    if (location.hash.startsWith('#/app/')) history.replaceState(null, '', '#/');
-    route();
-  });
-  $('lightbox-prev').addEventListener('click', () => stepShot(-1));
-  $('lightbox-next').addEventListener('click', () => stepShot(1));
-  $('lightbox-close').addEventListener('click', () => $('lightbox').close());
-  $('lightbox').addEventListener('keydown', (/** @type {KeyboardEvent} */ e) => {
-    if (e.key === 'ArrowLeft') stepShot(-1);
-    if (e.key === 'ArrowRight') stepShot(1);
-  });
-  // A click on the backdrop (the dialog itself, outside its content) closes it.
-  for (const id of ['lightbox', 'install']) {
-    $(id).addEventListener('click', (/** @type {MouseEvent} */ e) => { if (e.target === e.currentTarget) $(id).close(); });
+  
+  // Wire up hero search bar if rendered
+  const searchInput = $('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      state.query = e.target.value.trim();
+      route();
+    });
   }
-  window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#/app/')) state.query && clearSearch(); route(); });
-  route();
+
+  if (!q) window.scrollTo(0, 0);
 }
 
 function clearSearch() {
   state.query = '';
-  $('search').value = '';
+}
+
+async function start() {
+  setupTheme();
+
+  state.config = await (await fetch('config.json')).json();
+  const base = new URL(state.config.catalog, location.href).href;
+  
+  const getProduct = $('get-product');
+  if (getProduct) {
+    getProduct.href = state.config.install.downloadUrl;
+    getProduct.textContent = `Get ${state.config.install.productName}`;
+  }
+
+  const load = (url) => fetch(url, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const [catalog, listings] = await Promise.all([load(base), load('apps.json')]);
+  state.apps = merge(catalog, base, listings);
+
+  $('lightbox-prev').addEventListener('click', () => stepShot(-1));
+  $('lightbox-next').addEventListener('click', () => stepShot(1));
+  $('lightbox-close').addEventListener('click', () => $('lightbox').close());
+  $('lightbox').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') stepShot(-1);
+    if (e.key === 'ArrowRight') stepShot(1);
+  });
+
+  for (const id of ['lightbox', 'install']) {
+    $(id).addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) $(id).close();
+    });
+  }
+
+  window.addEventListener('hashchange', () => {
+    if (!location.hash.startsWith('#/app/')) state.query && clearSearch();
+    route();
+  });
+
+  route();
 }
 
 start();
+

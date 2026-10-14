@@ -7,5 +7,10 @@
     "protocol": "appshell",
     "productName": "Appshell",
     "downloadUrl": "https://github.com/samuelek25k/appshell/releases"
-  }
+  },
+  "featured": [
+    "quick-notes",
+    "world-clock",
+    "welcome"
+  ]
 }

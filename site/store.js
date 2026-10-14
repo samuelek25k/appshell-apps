@@ -86,39 +86,68 @@ const framed = (src, alt = '') => el('div', { class: 'window' }, [
   el('img', { src, alt, loading: 'lazy' }),
 ]);
 
-/** Featured banner: one app at a time, with tabs to switch. No auto-rotation. */
+/**
+ * Horizontal scrolling without a native scrollbar: returns the track and a pair of arrow
+ * buttons to place in the section header. Swipe, trackpad and Shift+wheel still scroll.
+ * The track fades at an edge only while there is more content beyond it.
+ * @param {HTMLElement} track @param {string} label
+ */
+function scroller(track, label) {
+  track.classList.add('track');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const arrow = (dir) => {
+    const b = el('button', { type: 'button', class: 'arrow', 'aria-label': `${dir < 0 ? 'Previous' : 'Next'} ${label}` }, [
+      el('span', { 'aria-hidden': 'true' }, [dir < 0 ? '‹' : '›']),
+    ]);
+    b.addEventListener('click', () => track.scrollBy({ left: dir * track.clientWidth * 0.85, behavior: reduce ? 'auto' : 'smooth' }));
+    return b;
+  };
+  const [prev, next] = [arrow(-1), arrow(1)];
+  const controls = el('div', { class: 'arrows' }, [prev, next]);
+  const update = () => {
+    const max = track.scrollWidth - track.clientWidth;
+    controls.hidden = max <= 2;
+    prev.disabled = track.scrollLeft <= 2;
+    next.disabled = track.scrollLeft >= max - 2;
+    track.classList.toggle('more-left', !prev.disabled);
+    track.classList.toggle('more-right', !next.disabled && max > 2);
+    track.dispatchEvent(new Event('track-update'));
+  };
+  track.addEventListener('scroll', update, { passive: true });
+  new ResizeObserver(update).observe(track);
+  return { track, controls };
+}
+
+/** Featured apps: a carousel of banners with page dots and arrows below. */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
-  const featured = apps.filter((a) => a.screenshots.length).sort((a, b) => rank(a) - rank(b)).slice(0, 4);
+  const featured = apps.filter((a) => a.screenshots.length).sort((a, b) => rank(a) - rank(b)).slice(0, 5);
   if (!featured.length) return '';
-  const stage = el('div', { class: 'feature-stage', id: 'feature-stage' });
-  const tabs = featured.map((app, i) => {
-    const t = el('button', { type: 'button', class: 'feature-tab', role: 'tab', 'aria-controls': 'feature-stage' }, [
-      icon(app), el('span', {}, [el('strong', {}, [app.title]), el('span', {}, [app.tagline ?? category(app)])]),
-    ]);
-    t.addEventListener('click', () => show(i));
-    return t;
+  const slides = featured.map((app) => accent(app, el('a', { class: 'feature', href: appLink(app) }, [
+    el('div', { class: 'feature-text' }, [
+      el('p', { class: 'feature-kind' }, [released(app) ? category(app) : status(app)]),
+      el('h2', {}, [app.title]),
+      el('p', { class: 'feature-tagline' }, [app.tagline ?? '']),
+      el('p', { class: 'feature-desc' }, [app.description ?? '']),
+      el('span', { class: 'feature-cta' }, [released(app) ? 'View and install' : 'See what it does']),
+    ]),
+    framed(app.screenshots[0]),
+  ])));
+  const { track, controls } = scroller(el('div', { class: 'feature-track' }, slides), 'featured app');
+  const offset = (/** @type {HTMLElement} */ s) => s.offsetLeft - track.offsetLeft;
+  const dots = slides.map((slide, i) => {
+    const d = el('button', { type: 'button', class: 'dot', 'aria-label': `Show ${featured[i].title}` });
+    d.addEventListener('click', () => track.scrollTo({ left: offset(slide), behavior: 'smooth' }));
+    return d;
   });
-  const show = (i) => {
-    const app = featured[i];
-    tabs.forEach((t, j) => t.setAttribute('aria-selected', String(i === j)));
-    accent(app, stage);
-    stage.replaceChildren(el('a', { class: 'feature', href: appLink(app) }, [
-      el('div', { class: 'feature-text' }, [
-        el('p', { class: 'feature-kind' }, [released(app) ? category(app) : status(app)]),
-        el('h2', {}, [app.title]),
-        el('p', { class: 'feature-tagline' }, [app.tagline ?? '']),
-        el('p', { class: 'feature-desc' }, [app.description ?? '']),
-        el('span', { class: 'feature-cta' }, [released(app) ? 'View and install' : 'See what it does']),
-      ]),
-      framed(app.screenshots[0]),
-    ]));
-  };
-  show(0);
+  track.addEventListener('track-update', () => {
+    const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
+    dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
+  });
   return el('section', { class: 'featured', 'aria-label': 'Featured apps' }, [
-    stage,
-    featured.length > 1 ? el('div', { class: 'feature-tabs', role: 'tablist', 'aria-label': 'Featured apps' }, tabs) : '',
+    track,
+    slides.length > 1 ? el('div', { class: 'feature-bar' }, [el('div', { class: 'dots' }, dots), controls]) : '',
   ]);
 }
 
@@ -132,12 +161,12 @@ const tile = (app) => el('a', { class: 'tile', href: appLink(app) }, [
   badge(app),
 ]);
 
-function shelf(title, apps, href, limit = 6) {
+function shelf(title, apps, href) {
   if (!apps.length) return '';
-  const more = apps.length > limit;
+  const { track, controls } = scroller(el('div', { class: 'shelf-track' }, apps.map(tile)), title);
   return el('section', { class: 'shelf' }, [
-    el('div', { class: 'shelf-head' }, [el('h2', {}, [title]), href && more ? el('a', { href }, [`See all ${apps.length}`]) : '']),
-    el('div', { class: 'cards' }, apps.slice(0, limit).map(tile)),
+    el('div', { class: 'shelf-head' }, [el('h2', {}, [title]), el('div', { class: 'shelf-tools' }, [href ? el('a', { href }, ['See all']) : '', controls])]),
+    track,
   ]);
 }
 
@@ -166,7 +195,7 @@ function renderHome() {
   ];
   for (const c of categories()) {
     const inCat = apps.filter((a) => (a.categories ?? []).includes(c));
-    if (inCat.length > 3) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
+    if (inCat.length > 1) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
   }
   out.push(shelf(`Included with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
   out.push(shelf('Coming soon', apps.filter((a) => !released(a) && !a.included)));
@@ -262,11 +291,12 @@ function versionHistory(app) {
 
 function gallery(app) {
   if (!app.screenshots.length) return '';
-  return el('div', { class: 'gallery' }, app.screenshots.slice(0, 4).map((src, i) => {
+  const { track, controls } = scroller(el('div', { class: 'gallery' }, app.screenshots.map((src, i) => {
     const b = el('button', { class: 'shot', type: 'button', 'aria-label': `Enlarge screenshot ${i + 1}` }, [framed(src, `${app.title} screenshot ${i + 1}`)]);
     b.addEventListener('click', () => openLightbox(app, i));
     return b;
-  }));
+  })), 'screenshot');
+  return el('section', { class: 'shots' }, [el('div', { class: 'shelf-head' }, [el('h2', {}, ['Screenshots']), controls]), track]);
 }
 
 function installButton(app, big = false) {

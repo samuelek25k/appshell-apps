@@ -9,6 +9,7 @@
     "downloadUrl": "https://github.com/samuelek25k/appshell/releases"
   },
   "featured": [
+    "outlook-calendar",
     "quick-notes",
     "pomodoro",
     "json-tools",

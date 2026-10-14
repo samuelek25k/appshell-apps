@@ -1,0 +1,25 @@
+{
+  "id": "outlook-calendar",
+  "version": "0.1.0",
+  "title": "Outlook Today",
+  "publisher": "Appshell",
+  "capabilities": {
+    "network": [
+      "login.microsoftonline.com",
+      "graph.microsoft.com"
+    ],
+    "notifications": true
+  },
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "today-meetings",
+      "title": "Upcoming Meetings"
+    }
+  ]
+}

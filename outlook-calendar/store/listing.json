@@ -1,0 +1,17 @@
+{
+  "description": "Connect to your Microsoft 365 or Outlook account to view today's schedule, join Teams/Zoom meetings with a single click, and preview upcoming agendas directly on your Appshell dashboard widget.",
+  "categories": [
+    "Productivity",
+    "Utilities"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Today's schedule and one-click meeting launcher.",
+  "accent": "#0078d4",
+  "highlights": [
+    "Secure Microsoft OAuth authentication",
+    "One-click join for Teams and Zoom calls",
+    "Live desktop dashboard schedule widget",
+    "Restricted network egress (graph.microsoft.com only)"
+  ],
+  "whatsNew": "Initial release with Microsoft Graph API calendar sync."
+}

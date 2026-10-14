@@ -1,6 +1,19 @@
 {
   "description": "A starter app made with appshell create. It counts your visits through its sandboxed backend and shows the count on the dashboard. Use it to check your setup, or as a reference for building your own app.",
-  "categories": ["Getting started"],
+  "categories": [
+    "Getting started"
+  ],
   "icon": "store/icon.svg",
-  "screenshots": ["store/screenshot-1.png", "store/screenshot-2.png"]
+  "screenshots": [
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
+  ],
+  "tagline": "Check your setup in one click.",
+  "accent": "#2f5bd3",
+  "highlights": [
+    "Sandboxed backend",
+    "Dashboard widget",
+    "Starter code to copy"
+  ],
+  "whatsNew": "The first release, built from the appshell template."
 }

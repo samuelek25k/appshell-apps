@@ -1,0 +1,19 @@
+{
+  "description": "Write a line, press Ctrl+Enter, and it's saved. Quick Notes keeps short notes on your computer and puts the newest one on your dashboard, so the thing you meant to remember is in front of you. It has no backend and no network access.",
+  "categories": [
+    "Productivity"
+  ],
+  "icon": "store/icon.svg",
+  "screenshots": [
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
+  ],
+  "tagline": "Jot it down before it's gone.",
+  "accent": "#e8a317",
+  "highlights": [
+    "Ctrl+Enter saves a note",
+    "Newest note on your dashboard",
+    "Stays on this computer"
+  ],
+  "whatsNew": "The first release."
+}

@@ -1,0 +1,20 @@
+{
+  "description": "See the time where your team is. World Clock shows a card per city and a dashboard widget that updates every few seconds. Add or remove cities and it remembers your choice. Times come from your computer's clock and time zone data, so it works offline.",
+  "categories": [
+    "Productivity",
+    "Utilities"
+  ],
+  "icon": "store/icon.svg",
+  "screenshots": [
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
+  ],
+  "tagline": "Your team's time zones at a glance.",
+  "accent": "#0e8f9e",
+  "highlights": [
+    "Times for any city",
+    "Dashboard widget",
+    "Works offline"
+  ],
+  "whatsNew": "The first release, with Dubai, London, New York and Kochi to start."
+}

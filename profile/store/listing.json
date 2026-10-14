@@ -1,0 +1,20 @@
+{
+  "description": "Tell your apps who you are once. Profile keeps your name, email and role on this computer and shows them on your dashboard. It warns you before closing with unsaved changes.",
+  "categories": [
+    "Getting started"
+  ],
+  "icon": "store/icon.svg",
+  "screenshots": [
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
+  ],
+  "tagline": "Your name and role, set once.",
+  "accent": "#7a4fd0",
+  "highlights": [
+    "Shown on your dashboard",
+    "Stays on this computer",
+    "Warns before losing changes"
+  ],
+  "whatsNew": "The first stable release.",
+  "included": true
+}

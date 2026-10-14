@@ -3,20 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'none'">
   <title>App store</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="store.css">
   <script type="module" src="store.js"></script>
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="#/"><span id="store-name">App store</span></a>
-    <input id="search" type="search" placeholder="Search apps" aria-label="Search apps">
+    <div class="top-in">
+      <a class="brand" href="#/"><img src="mark.svg" alt="" width="28" height="28"><span id="store-name">App store</span></a>
+      <input id="search" type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off">
+      <a class="get-product" id="get-product" href="#" rel="noopener">Get the desktop app</a>
+    </div>
   </header>
   <main id="view" aria-live="polite"></main>
   <footer class="foot">
-    <p>Every release is built from source by CI and pinned by its SHA-256. The desktop app checks the digest and the app's manifest before installing.</p>
+    <p>Every release is built from source by CI and pinned by its SHA-256. The desktop app checks the digest and the app's manifest before it installs anything.</p>
   </footer>
-  <div id="toast" role="status" hidden></div>
+
+  <dialog id="install" aria-labelledby="install-title">
+    <form method="dialog" class="install-card">
+      <div class="install-head"><img id="install-icon" class="icon" alt=""><h2 id="install-title"></h2></div>
+      <ol class="install-steps">
+        <li id="install-step-1"></li>
+        <li id="install-step-2"></li>
+        <li>The app appears on your dashboard, ready to open.</li>
+      </ol>
+      <p id="install-status" class="install-status" role="status"></p>
+      <div class="install-actions">
+        <button value="cancel" class="button quiet">Cancel</button>
+        <button type="button" id="install-go" class="button primary"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="lightbox" aria-label="Screenshot">
+    <img id="lightbox-img" alt="">
+    <div class="lightbox-bar">
+      <button type="button" id="lightbox-prev" class="button quiet" aria-label="Previous screenshot">Previous</button>
+      <span id="lightbox-count"></span>
+      <button type="button" id="lightbox-next" class="button quiet" aria-label="Next screenshot">Next</button>
+      <button type="button" id="lightbox-close" class="button quiet">Close</button>
+    </div>
+  </dialog>
 </body>
 </html>

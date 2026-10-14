@@ -1,0 +1,18 @@
+{
+  "id": "world-clock",
+  "version": "0.1.0",
+  "title": "World Clock",
+  "publisher": "Appshell",
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "clocks",
+      "title": "World Clock"
+    }
+  ]
+}

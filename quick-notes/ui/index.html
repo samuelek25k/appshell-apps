@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quick Notes</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main>
+    <form id="add">
+      <label for="text">New note</label>
+      <textarea id="text" rows="3" maxlength="500" placeholder="Write a note and press Ctrl+Enter"></textarea>
+      <button type="submit">Add note</button>
+    </form>
+    <p id="empty">No notes yet. Your first note will also appear on the dashboard.</p>
+    <ul id="notes"></ul>
+  </main>
+</body>
+</html>

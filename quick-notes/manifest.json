@@ -1,0 +1,18 @@
+{
+  "id": "quick-notes",
+  "version": "0.1.0",
+  "title": "Quick Notes",
+  "publisher": "Appshell",
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "latest",
+      "title": "Quick Notes"
+    }
+  ]
+}

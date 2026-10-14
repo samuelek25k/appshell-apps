@@ -1,6 +1,7 @@
-// Records one release in index.json. Inputs come from the environment (see release-app.yml).
-// The host validates the catalog and every package again, so this stays minimal.
-import { readFileSync, writeFileSync } from 'node:fs';
+// Records one release in index.json, with the app's store listing (<id>/store/listing.json).
+// Inputs come from the environment (see release-app.yml). The host validates the catalog
+// and every package again, so this stays minimal.
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const { ID, VERSION, SHA256, COMMIT, URL, REPOSITORY } = process.env;
 const manifest = JSON.parse(readFileSync(`${ID}/manifest.json`, 'utf8'));
@@ -8,6 +9,13 @@ const catalog = JSON.parse(readFileSync('index.json', 'utf8'));
 let entry = catalog.apps.find((a) => a.id === ID);
 if (!entry) catalog.apps.push(entry = { id: ID, title: '', publisher: '', repository: '', releases: [] });
 Object.assign(entry, { title: manifest.title, publisher: manifest.publisher, repository: REPOSITORY });
+const listingFile = `${ID}/store/listing.json`;
+if (existsSync(listingFile)) {
+  const { description, categories, icon, screenshots } = JSON.parse(readFileSync(listingFile, 'utf8'));
+  // Listing paths are relative to the app folder; the catalog's are relative to index.json.
+  const local = (p) => (p.startsWith('https://') ? p : `${ID}/${p}`);
+  Object.assign(entry, { description, categories, icon: icon && local(icon), screenshots: screenshots?.map(local) });
+}
 entry.releases = entry.releases.filter((r) => r.version !== VERSION);
 entry.releases.push({ version: VERSION, channel: VERSION.includes('-') ? 'beta' : 'stable', url: URL, sha256: SHA256, commit: COMMIT });
 writeFileSync('index.json', JSON.stringify(catalog, null, 2) + '\n');

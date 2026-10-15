@@ -315,6 +315,7 @@ function permissions(app) {
   if (caps.notifications) list.push(['Desktop Notifications', 'Can show native system notifications.']);
   if (caps.identity) list.push(['Identity Attestation', 'Can request identity verification from your desktop shell.']);
   if (caps.secrets?.length) list.push(['Encrypted Secrets', `Secure storage for: ${caps.secrets.join(', ')}.`]);
+  if (caps.launcher) list.push(['Custom Launcher (D13)', 'Can query installed apps, inspect widgets, and launch apps through the sandboxed bridge.']);
   if (app.widgets?.length) list.push(['Dashboard Widget', `Adds interactive widget: ${app.widgets.join(', ')}.`]);
 
   return el('div', { class: 'border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 overflow-hidden bg-white dark:bg-slate-900' },

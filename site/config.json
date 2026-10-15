@@ -6,7 +6,7 @@
     "type": "desktop-link",
     "protocol": "appshell",
     "productName": "Appshell",
-    "downloadUrl": "https://github.com/samuelek25k/appshell/releases"
+    "downloadUrl": "https://samuelek25k.github.io/appshell/releases.html"
   },
   "cdn": {
     "enabled": true,

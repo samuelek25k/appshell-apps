@@ -150,7 +150,7 @@ function spotlight(apps) {
         el('p', { class: 'text-sm sm:text-lg font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3' }, [app.tagline ?? '']),
         el('p', { class: 'text-xs sm:text-sm text-slate-500 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
         el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-bold text-xs sm:text-sm transition-all group-hover:bg-brand-600 dark:group-hover:bg-slate-100 group-hover:gap-3' }, [
-          released(app) ? 'Get & Install App' : 'Inspect Specifications',
+          released(app) ? 'Get App' : 'View Details',
           el('span', {}, ['→'])
         ]),
       ]),
@@ -252,7 +252,7 @@ function renderHome() {
     const inCat = apps.filter((a) => (a.categories ?? []).includes(c));
     if (inCat.length > 1) shelves.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
   }
-  shelves.push(shelf(`Shipped with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
+  shelves.push(shelf(`Included with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
   shelves.push(shelf('Coming Soon', apps.filter((a) => !released(a) && !a.included)));
 
   return [
@@ -268,16 +268,16 @@ function renderList(title, apps, current) {
       el('div', { class: 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 mb-6' }, [
         el('div', {}, [
           el('h1', { class: 'text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white' }, [title]),
-          el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} application${apps.length === 1 ? '' : 's'} matching`]),
+          el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} app${apps.length === 1 ? '' : 's'} found`]),
         ]),
-        el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline', onclick: () => { clearSearch(); } }, ['← Reset search']),
+        el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline', onclick: () => { clearSearch(); } }, ['← Clear search']),
       ]),
       chips(current),
       apps.length
         ? el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' }, apps.map(tile))
         : el('div', { class: 'text-center py-20 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800' }, [
-            el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps found matching "${state.query}".` : 'No apps here yet.']),
-            el('button', { type: 'button', class: 'mt-3 px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900', onclick: () => { clearSearch(); route(); } }, ['Show all apps']),
+            el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `We couldn't find any apps matching "${state.query}".` : 'No apps here yet.']),
+            el('button', { type: 'button', class: 'mt-3 px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900', onclick: () => { clearSearch(); route(); } }, ['Browse all apps']),
           ]),
     ])
   ];
@@ -296,7 +296,7 @@ function facts(app) {
   const items = [
     ['Version', release?.version ?? app.version ?? '—'],
     ['Category', category(app)],
-    ['Network Access', net.length ? `${net.length} host${net.length > 1 ? 's' : ''}` : 'Fully Offline'],
+    ['Network', net.length ? `${net.length} host${net.length > 1 ? 's' : ''}` : 'Offline only'],
     ['Widgets', String(app.widgets?.length ?? 0)],
   ];
   return el('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3 my-8' }, items.map(([k, v]) => el('div', { class: 'p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center' }, [
@@ -307,15 +307,15 @@ function facts(app) {
 
 function permissions(app) {
   const caps = app.capabilities ?? {};
-  const list = [['Private App Sandbox', 'Completely isolated local disk storage partition.']];
+  const list = [['Private App Sandbox', 'Completely isolated storage partition on your disk.']];
   list.push(caps.network?.length
-    ? ['Network Egress', `Allowlisted hosts: ${caps.network.join(', ')}.`]
-    : ['Zero Network Access', 'Cannot make any external HTTP or WebSocket requests.']);
-  if (app.backend) list.push(['Background Process', 'Runs sandboxed with no host system privilege.']);
-  if (caps.notifications) list.push(['Desktop Alerts', 'Can post native OS notification toasts.']);
-  if (caps.identity) list.push(['Local Identity', 'Can ask desktop app to attest user identity.']);
-  if (caps.secrets?.length) list.push(['Encrypted Vault', `Secure key storage: ${caps.secrets.join(', ')}.`]);
-  if (app.widgets?.length) list.push(['Workspace Widget', `Provides widget: ${app.widgets.join(', ')}.`]);
+    ? ['Network Access', `Only connects to: ${caps.network.join(', ')}.`]
+    : ['No Network Access', 'Fully offline — cannot make external network requests.']);
+  if (app.backend) list.push(['Background Worker', 'Runs sandboxed in the background with zero system privileges.']);
+  if (caps.notifications) list.push(['Desktop Notifications', 'Can show native system notifications.']);
+  if (caps.identity) list.push(['Identity Attestation', 'Can request identity verification from your desktop shell.']);
+  if (caps.secrets?.length) list.push(['Encrypted Secrets', `Secure storage for: ${caps.secrets.join(', ')}.`]);
+  if (app.widgets?.length) list.push(['Dashboard Widget', `Adds interactive widget: ${app.widgets.join(', ')}.`]);
 
   return el('div', { class: 'border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/80 overflow-hidden bg-white dark:bg-slate-900' },
     list.map(([title, desc]) => el('div', { class: 'p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs' }, [
@@ -331,18 +331,18 @@ function provenance(app) {
   const repoText = repo.replace(/^https:\/\/(www\.)?github\.com\//, '');
   if (!release) {
     return el('div', { class: 'p-6 bg-slate-900 text-slate-300 border border-slate-800' }, [
-      el('h3', { class: 'text-sm font-bold text-white mb-2' }, [app.included ? 'Integrated System Component' : 'Release Pipeline']),
+      el('h3', { class: 'text-sm font-bold text-white mb-2' }, [app.included ? 'Built-in App' : 'Release Pipeline']),
       el('p', { class: 'text-xs text-slate-400 leading-relaxed' }, [
         app.included
-          ? `This application is packaged directly with ${state.config.install.productName} and maintained in source.`
-          : 'When this app is published, automated CI compiles the release bundle and locks its SHA-256 digest in the catalog.'
+          ? `This app comes pre-installed with ${state.config.install.productName} and is maintained as part of the core repository.`
+          : 'Built and packaged automatically by GitHub Actions, then verified with a SHA-256 checksum.'
       ]),
       repo ? el('a', { href: repo, target: '_blank', rel: 'noopener', class: 'mt-4 inline-flex items-center text-xs font-semibold text-brand-400 hover:underline' }, ['Source Repository →']) : '',
     ]);
   }
   return el('div', { class: 'p-6 bg-slate-900 text-slate-300 border border-slate-800 space-y-4' }, [
     el('div', { class: 'flex items-center justify-between pb-3 border-b border-slate-800' }, [
-      el('h3', { class: 'text-sm font-bold text-white' }, ['Cryptographic Provenance']),
+      el('h3', { class: 'text-sm font-bold text-white' }, ['Package Provenance']),
       el('span', { class: 'text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 border border-emerald-800' }, ['CI Verified']),
     ]),
     el('div', { class: 'space-y-3 text-xs' }, [
@@ -351,7 +351,7 @@ function provenance(app) {
         el('code', { class: 'font-mono text-slate-200' }, [release.commit.slice(0, 10)]),
       ]),
       el('div', { class: 'flex flex-col gap-1' }, [
-        el('span', { class: 'text-slate-500' }, ['SHA-256 Digest']),
+        el('span', { class: 'text-slate-500' }, ['SHA-256 Checksum']),
         el('code', { class: 'font-mono text-[10px] break-all p-2 bg-slate-950 border border-slate-800 text-slate-300' }, [release.sha256]),
       ]),
     ]),

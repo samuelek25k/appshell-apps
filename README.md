@@ -6,10 +6,16 @@ Apps for [Appshell](https://github.com/samuelek25k/appshell), the catalog that l
 
 | App | What it does | Status |
 | --- | --- | --- |
-| [Welcome](welcome) | Checks your setup; counts visits through a sandboxed backend. | Released |
-| [Profile](profile) | Your name, email and role, shown on the dashboard. | Included with Appshell |
-| [Quick Notes](quick-notes) | Short notes, newest one on your dashboard. | Not released |
-| [World Clock](world-clock) | Times for your team's cities, with a dashboard widget. | Not released |
+| [Welcome](welcome) | Verifies your Appshell setup and records visit history via a sandboxed backend. | Released |
+| [Profile](profile) | Displays your local profile (name, email, role) on your dashboard. | Included with Appshell |
+| [Clipboard History](clipboard-manager) | Local clipboard history and quick snippets with fuzzy search. | Ready to package |
+| [Color Studio](color-picker) | OKLCH, HEX, and HSL converter with WCAG contrast audit score. | Ready to package |
+| [JSON Formatter](json-tools) | Private offline JSON formatting, validation, and linting. | Ready to package |
+| [Markdown Studio](markdown-preview) | Distraction-free Markdown editor with live preview and Mermaid diagrams. | Ready to package |
+| [Outlook Calendar](outlook-calendar) | Calendar agenda view and meeting schedule tracking. | Ready to package |
+| [Pomodoro Timer](pomodoro) | Focus intervals, break alarms, and daily streak tracking. | Ready to package |
+| [Quick Notes](quick-notes) | Lightweight personal scratchpad with newest notes on your dashboard. | Ready to package |
+| [World Clock](world-clock) | Multi-timezone clocks for your team's cities with a live widget. | Ready to package |
 
 ## How it fits together
 

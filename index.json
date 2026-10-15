@@ -223,6 +223,28 @@
           "commit": "a5048381527b6601dd9522d475c82dac5eaa4ee2"
         }
       ]
+    },
+    {
+      "id": "resume-builder",
+      "title": "AI Resume Builder",
+      "publisher": "Appshell",
+      "repository": "https://github.com/samuelek25k/appshell-apps",
+      "releases": [
+        {
+          "version": "0.1.0",
+          "channel": "stable",
+          "url": "https://github.com/samuelek25k/appshell-apps/releases/download/resume-builder-v0.1.0/resume-builder-0.1.0.tgz",
+          "sha256": "e10c9ff8f5a164fb5c5b2ef730edc85c4055b21c314542b4ffeec1784e0a52bc",
+          "commit": "eb8f9e4be426c3f455605d4bb71e45ba5633f8ce"
+        }
+      ],
+      "description": "Craft, tailor, and polish modern ATS-friendly resumes with multi-provider AI assistance. Supports OpenAI (GPT-4o), Anthropic Claude, Google Gemini, Groq, and local Ollama models. Stores API keys securely using Web Crypto AES-GCM and Appshell secrets. Export directly to print-ready PDF, HTML, or structured JSON.",
+      "categories": [
+        "Productivity",
+        "Developer Tools"
+      ],
+      "icon": "resume-builder/store/icon.svg",
+      "screenshots": []
     }
   ]
 }

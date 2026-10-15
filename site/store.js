@@ -610,51 +610,74 @@ async function start() {
   }
 
   // Performance SWR Cache: instant display from sessionStorage, revalidate in background
-  const loadWithCache = async (key, url, fallbackUrl) => {
-    const cached = sessionStorage.getItem(`appshell_cache_${key}`);
-    const fetchFresh = async () => {
-      const fetchWithTimeout = (targetUrl, ms = 2500) => {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), ms);
-        return fetch(targetUrl, { signal: controller.signal })
-          .then((r) => { clearTimeout(timeout); return r.ok ? r.json() : null; })
-          .catch(() => { clearTimeout(timeout); return null; });
-      };
-
-      let data = await fetchWithTimeout(url);
-      if (!data && fallbackUrl) {
-        data = await fetchWithTimeout(fallbackUrl);
-      }
-      if (data) {
-        try { sessionStorage.setItem(`appshell_cache_${key}`, JSON.stringify(data)); } catch {}
-      }
-      return data;
-    };
-
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        // Refresh cache in background
-        fetchFresh().then((fresh) => {
-          if (fresh && JSON.stringify(fresh) !== cached) {
-            // Hot update if changed
-            if (key === 'catalog') {
-              state.apps = merge(fresh, cdnBase || localCatalogUrl, listingsData, cdnBase);
-              route();
-            }
-          }
-        });
-        return parsed;
-      } catch {}
-    }
-
-    return (await fetchFresh()) ?? {};
+  const fetchWithTimeout = (targetUrl, ms = 3000) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ms);
+    // Use cache: 'no-cache' to ensure Conditional GET (ETag / If-Modified-Since) validates fresh changes
+    return fetch(targetUrl, { signal: controller.signal, cache: 'no-cache' })
+      .then((r) => { clearTimeout(timeout); return r.ok ? r.json() : null; })
+      .catch(() => { clearTimeout(timeout); return null; });
   };
 
-  let [catalogData, listingsData] = await Promise.all([
-    loadWithCache('catalog', catalogUrl, localCatalogUrl),
-    loadWithCache('listings', listingsUrl, 'apps.json')
-  ]);
+  const loadData = async (url, fallbackUrl) => {
+    let data = await fetchWithTimeout(url);
+    if (!data && fallbackUrl) {
+      data = await fetchWithTimeout(fallbackUrl);
+    }
+    return data;
+  };
+
+  const cachedCatalog = sessionStorage.getItem('appshell_cache_catalog');
+  const cachedListings = sessionStorage.getItem('appshell_cache_listings');
+
+  let catalogData = {};
+  let listingsData = {};
+
+  if (cachedCatalog && cachedListings) {
+    try {
+      catalogData = JSON.parse(cachedCatalog);
+      listingsData = JSON.parse(cachedListings);
+    } catch {}
+  }
+
+  // If no cache, wait synchronously for initial load
+  if (!catalogData.apps && !listingsData.apps) {
+    const [c, l] = await Promise.all([
+      loadData(catalogUrl, localCatalogUrl),
+      loadData(listingsUrl, 'apps.json')
+    ]);
+    catalogData = c || {};
+    listingsData = l || {};
+    try {
+      sessionStorage.setItem('appshell_cache_catalog', JSON.stringify(catalogData));
+      sessionStorage.setItem('appshell_cache_listings', JSON.stringify(listingsData));
+    } catch {}
+  } else {
+    // If cache exists, revalidate in background immediately; if changed, live re-render UI
+    Promise.all([
+      loadData(catalogUrl, localCatalogUrl),
+      loadData(listingsUrl, 'apps.json')
+    ]).then(([freshCatalog, freshListings]) => {
+      const catalogStr = freshCatalog ? JSON.stringify(freshCatalog) : '';
+      const listingsStr = freshListings ? JSON.stringify(freshListings) : '';
+      const catalogChanged = freshCatalog && catalogStr !== cachedCatalog;
+      const listingsChanged = freshListings && listingsStr !== cachedListings;
+
+      if (catalogChanged || listingsChanged) {
+        if (freshCatalog) {
+          catalogData = freshCatalog;
+          try { sessionStorage.setItem('appshell_cache_catalog', catalogStr); } catch {}
+        }
+        if (freshListings) {
+          listingsData = freshListings;
+          try { sessionStorage.setItem('appshell_cache_listings', listingsStr); } catch {}
+        }
+        state.apps = merge(catalogData, cdnBase || localCatalogUrl, listingsData, cdnBase);
+        route();
+      }
+    });
+  }
+
   state.apps = merge(catalogData, cdnBase || localCatalogUrl, listingsData, cdnBase);
 
   $('lightbox-prev').addEventListener('click', () => stepShot(-1));

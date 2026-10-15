@@ -28,6 +28,12 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
+  // Always fetch dynamic catalog/listings from network/CDN so data changes are detected immediately
+  const isDynamicData = url.pathname.endsWith('index.json') ||
+                        url.pathname.endsWith('apps.json') ||
+                        url.pathname.endsWith('config.json');
+  if (isDynamicData) return;
+
   // Cache same-origin assets and CDN assets (jsdelivr, fonts)
   const isCachable = url.origin === self.location.origin ||
                      url.hostname === 'cdn.jsdelivr.net' ||

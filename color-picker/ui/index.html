@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Color Studio & Contrast Checker</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="brand">
+        <span class="swatch-badge" id="header-badge"></span>
+        <span class="title">Color Studio</span>
+      </div>
+      <button type="button" id="btn-eyedropper" class="btn-eyedropper">🔍 Pick Screen Color</button>
+    </header>
+
+    <!-- Interactive Color Canvas & Sliders -->
+    <div class="card main-picker">
+      <div class="preview-hero" id="preview-box">
+        <span id="preview-hex" class="hero-hex">#0ea5e9</span>
+      </div>
+
+      <div class="picker-inputs">
+        <input type="color" id="native-picker" value="#0ea5e9">
+        <div class="format-grid">
+          <div class="format-cell">
+            <label>HEX</label>
+            <div class="input-with-copy">
+              <input type="text" id="val-hex" readonly value="#0ea5e9">
+              <button type="button" class="btn-copy" data-target="val-hex">Copy</button>
+            </div>
+          </div>
+          <div class="format-cell">
+            <label>RGB</label>
+            <div class="input-with-copy">
+              <input type="text" id="val-rgb" readonly value="rgb(14, 165, 233)">
+              <button type="button" class="btn-copy" data-target="val-rgb">Copy</button>
+            </div>
+          </div>
+          <div class="format-cell">
+            <label>HSL</label>
+            <div class="input-with-copy">
+              <input type="text" id="val-hsl" readonly value="hsl(199, 89%, 48%)">
+              <button type="button" class="btn-copy" data-target="val-hsl">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WCAG Contrast Matrix -->
+    <div class="card contrast-card">
+      <div class="card-title">Accessibility (WCAG 2.1 Contrast)</div>
+      <div class="contrast-row">
+        <div class="contrast-badge" id="badge-white">
+          <div class="contrast-sample" style="background: white; color: #0ea5e9;">Aa</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio" id="ratio-white">3.1:1</span>
+            <span class="contrast-status" id="status-white">Fail (Large text only)</span>
+          </div>
+        </div>
+
+        <div class="contrast-badge" id="badge-black">
+          <div class="contrast-sample" style="background: #090d16; color: #0ea5e9;">Aa</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio" id="ratio-black">6.8:1</span>
+            <span class="contrast-status" id="status-black">Pass (AAA Ready)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Palette & Swatches -->
+    <div class="card palette-card">
+      <div class="palette-header">
+        <span class="card-title">Saved Palette (Saved to Appshell Widget)</span>
+        <button type="button" id="btn-save-swatch" class="btn-sm">+ Save Swatch</button>
+      </div>
+      <div id="swatch-list" class="swatches-grid"></div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pomodoro Focus</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <div class="modes" role="tablist">
+        <button type="button" class="mode-tab active" data-mode="pomodoro">Focus</button>
+        <button type="button" class="mode-tab" data-mode="shortBreak">Short Break</button>
+        <button type="button" class="mode-tab" data-mode="longBreak">Long Break</button>
+      </div>
+    </header>
+
+    <div class="timer-card">
+      <div class="timer-display" id="time-display">25:00</div>
+      <div class="task-display" id="active-task-label">Deep Work Session</div>
+      
+      <div class="controls">
+        <button type="button" id="btn-toggle" class="btn-primary">Start</button>
+        <button type="button" id="btn-skip" class="btn-secondary" title="Skip to next session">Skip</button>
+        <button type="button" id="btn-reset" class="btn-secondary" title="Reset current session">Reset</button>
+      </div>
+    </div>
+
+    <!-- Stats & Session Count -->
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-sessions">0</span>
+        <span class="stat-lbl">Completed</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-minutes">0m</span>
+        <span class="stat-lbl">Focus Time</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-streak">0</span>
+        <span class="stat-lbl">Streak</span>
+      </div>
+    </div>
+
+    <!-- Quick Focus Task Input -->
+    <div class="task-card">
+      <form id="task-form">
+        <input type="text" id="task-input" placeholder="What are you focusing on?" maxlength="60" autocomplete="off">
+        <button type="submit" class="btn-save-task">Set Task</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

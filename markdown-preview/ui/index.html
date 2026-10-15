@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Markdown Studio</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <header class="toolbar">
+      <div class="brand">
+        <span class="glyph">M↓</span>
+        <span class="title">Markdown Studio</span>
+      </div>
+      
+      <div class="actions">
+        <button type="button" id="btn-sample" class="btn-action">Sample Doc</button>
+        <button type="button" id="btn-copy-html" class="btn-action">Copy HTML</button>
+        <button type="button" id="btn-copy-md" class="btn-action">Copy Markdown</button>
+        <button type="button" id="btn-clear" class="btn-action">Clear</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <!-- Editor -->
+      <section class="pane">
+        <div class="pane-header">
+          <span class="pane-title">Markdown Source</span>
+          <span id="md-stats" class="pane-stats">0 words</span>
+        </div>
+        <textarea id="md-input" placeholder="Type Markdown here... Supports tables, checklists, code blocks, math..." spellcheck="false"></textarea>
+      </section>
+
+      <!-- Live Rendered Preview -->
+      <section class="pane">
+        <div class="pane-header">
+          <span class="pane-title">Rendered HTML Preview</span>
+          <span class="pane-badge">Live Sync</span>
+        </div>
+        <div id="md-preview" class="preview-container custom-markdown"></div>
+      </section>
+    </main>
+
+    <footer class="statusbar">
+      <div id="status-left">Ready</div>
+      <div id="status-right">Zero Network • Local Parsing</div>
+    </footer>
+  </div>
+</body>
+</html>

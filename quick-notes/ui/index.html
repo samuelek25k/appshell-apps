@@ -8,13 +8,43 @@
 </head>
 <body>
   <main>
-    <form id="add">
-      <label for="text">New note</label>
-      <textarea id="text" rows="3" maxlength="500" placeholder="Write a note and press Ctrl+Enter"></textarea>
-      <button type="submit">Add note</button>
+    <header class="notes-header">
+      <div class="header-left">
+        <span class="header-icon">📝</span>
+        <h1 class="header-title">Quick Notes</h1>
+      </div>
+      <div class="search-box">
+        <input type="search" id="notes-search" placeholder="Search notes...">
+      </div>
+    </header>
+
+    <form id="add" class="add-form">
+      <div class="textarea-wrap">
+        <textarea id="text" rows="3" maxlength="1000" placeholder="Jot down a quick thought, task, or snippet... (Ctrl+Enter to save)"></textarea>
+      </div>
+      <div class="form-footer">
+        <div class="tag-selector">
+          <label class="tag-chip active" data-tag="work">💼 Work</label>
+          <label class="tag-chip" data-tag="idea">💡 Idea</label>
+          <label class="tag-chip" data-tag="todo">✅ Todo</label>
+        </div>
+        <button type="submit" class="btn-save">Save Note</button>
+      </div>
     </form>
-    <p id="empty">No notes yet. Your first note will also appear on the dashboard.</p>
-    <ul id="notes"></ul>
+
+    <div class="filters-row">
+      <div class="filter-tabs" id="tag-filters">
+        <button type="button" class="tab-btn active" data-filter="all">All</button>
+        <button type="button" class="tab-btn" data-filter="pinned">📌 Pinned</button>
+        <button type="button" class="tab-btn" data-filter="work">Work</button>
+        <button type="button" class="tab-btn" data-filter="idea">Ideas</button>
+        <button type="button" class="tab-btn" data-filter="todo">Todos</button>
+      </div>
+      <span id="notes-count" class="notes-count">0 notes</span>
+    </div>
+
+    <p id="empty" class="empty-state">No notes found. Jot down your thoughts above.</p>
+    <ul id="notes" class="notes-list"></ul>
   </main>
 </body>
 </html>

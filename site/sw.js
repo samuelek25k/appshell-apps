@@ -1,6 +1,6 @@
-// Basic offline PWA service worker for Appshell Store
-const CACHE_NAME = 'appshell-store-v1';
-const ASSETS = [
+// Offline PWA service worker with Stale-While-Revalidate caching for Appshell Store
+const CACHE_NAME = 'appshell-store-v2';
+const STATIC_ASSETS = [
   './',
   './index.html',
   './store.css',
@@ -12,7 +12,7 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting())
   );
 });
 
@@ -25,17 +25,29 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first for catalog/data, fallback to cache for offline viewing
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+
+  // Cache same-origin assets and CDN assets (jsdelivr, fonts)
+  const isCachable = url.origin === self.location.origin ||
+                     url.hostname === 'cdn.jsdelivr.net' ||
+                     url.hostname === 'fonts.googleapis.com' ||
+                     url.hostname === 'fonts.gstatic.com';
+
+  if (!isCachable) return;
+
+  // Stale-While-Revalidate: Return cached response immediately while revalidating in background
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok && event.request.url.startsWith(self.location.origin)) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(event.request);
+      const networkPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.ok) {
+          cache.put(event.request, networkResponse.clone());
         }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+        return networkResponse;
+      }).catch(() => null);
+
+      return cached || (await networkPromise) || new Response('', { status: 504, statusText: 'Gateway Timeout' });
+    })
   );
 });

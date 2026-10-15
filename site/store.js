@@ -609,25 +609,53 @@ async function start() {
     });
   }
 
-  const load = async (url, fallbackUrl) => {
-    try {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (res.ok) return await res.json();
-    } catch {}
-    if (fallbackUrl) {
+  // Performance SWR Cache: instant display from sessionStorage, revalidate in background
+  const loadWithCache = async (key, url, fallbackUrl) => {
+    const cached = sessionStorage.getItem(`appshell_cache_${key}`);
+    const fetchFresh = async () => {
+      const fetchWithTimeout = (targetUrl, ms = 2500) => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), ms);
+        return fetch(targetUrl, { signal: controller.signal })
+          .then((r) => { clearTimeout(timeout); return r.ok ? r.json() : null; })
+          .catch(() => { clearTimeout(timeout); return null; });
+      };
+
+      let data = await fetchWithTimeout(url);
+      if (!data && fallbackUrl) {
+        data = await fetchWithTimeout(fallbackUrl);
+      }
+      if (data) {
+        try { sessionStorage.setItem(`appshell_cache_${key}`, JSON.stringify(data)); } catch {}
+      }
+      return data;
+    };
+
+    if (cached) {
       try {
-        const res = await fetch(fallbackUrl, { cache: 'no-cache' });
-        if (res.ok) return await res.json();
+        const parsed = JSON.parse(cached);
+        // Refresh cache in background
+        fetchFresh().then((fresh) => {
+          if (fresh && JSON.stringify(fresh) !== cached) {
+            // Hot update if changed
+            if (key === 'catalog') {
+              state.apps = merge(fresh, cdnBase || localCatalogUrl, listingsData, cdnBase);
+              route();
+            }
+          }
+        });
+        return parsed;
       } catch {}
     }
-    return {};
+
+    return (await fetchFresh()) ?? {};
   };
 
-  const [catalog, listings] = await Promise.all([
-    load(catalogUrl, localCatalogUrl),
-    load(listingsUrl, 'apps.json')
+  let [catalogData, listingsData] = await Promise.all([
+    loadWithCache('catalog', catalogUrl, localCatalogUrl),
+    loadWithCache('listings', listingsUrl, 'apps.json')
   ]);
-  state.apps = merge(catalog, cdnBase || localCatalogUrl, listings, cdnBase);
+  state.apps = merge(catalogData, cdnBase || localCatalogUrl, listingsData, cdnBase);
 
   $('lightbox-prev').addEventListener('click', () => stepShot(-1));
   $('lightbox-next').addEventListener('click', () => stepShot(1));

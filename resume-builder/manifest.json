@@ -1,0 +1,33 @@
+{
+  "id": "resume-builder",
+  "version": "0.1.0",
+  "title": "AI Resume Builder",
+  "publisher": "Appshell",
+  "capabilities": {
+    "network": [
+      "api.openai.com",
+      "api.anthropic.com",
+      "generativelanguage.googleapis.com",
+      "api.groq.com",
+      "localhost"
+    ],
+    "secrets": [
+      "openai_api_key",
+      "anthropic_api_key",
+      "gemini_api_key",
+      "groq_api_key"
+    ]
+  },
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "active-resume",
+      "title": "Resume Overview"
+    }
+  ]
+}

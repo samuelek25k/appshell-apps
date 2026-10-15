@@ -129,7 +129,7 @@ function scroller(track, label) {
   return { track, controls };
 }
 
-/** Featured apps: full-width hero slider with sharp styling */
+/** Featured apps: true full-width edge-to-edge hero slider with clean sharp styling (no heavy corner shadows) */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
@@ -137,35 +137,37 @@ function spotlight(apps) {
   if (!featured.length) return '';
   
   const slides = featured.map((app) => accent(app, el('a', {
-    class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-10 md:p-12 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700 w-full',
+    class: 'group relative w-full overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/70 to-slate-900 border-b border-slate-800 transition-colors block',
     href: appLink(app)
   }, [
-    el('div', { class: 'lg:col-span-7 flex flex-col items-start z-10' }, [
-      el('div', { class: 'flex items-center gap-2 mb-3' }, [
-        el('span', { class: 'inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md' }, [category(app)]),
-        badge(app),
+    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center' }, [
+      el('div', { class: 'lg:col-span-7 flex flex-col items-start z-10' }, [
+        el('div', { class: 'flex items-center gap-2 mb-3' }, [
+          el('span', { class: 'inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20' }, [category(app)]),
+          badge(app),
+        ]),
+        el('h2', { class: 'text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3' }, [app.title]),
+        el('p', { class: 'text-sm sm:text-lg font-medium text-slate-200 mb-2 sm:mb-3' }, [app.tagline ?? '']),
+        el('p', { class: 'text-xs sm:text-sm text-slate-400 line-clamp-2 sm:line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
+        el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-white text-slate-950 font-bold text-xs sm:text-sm transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
+          released(app) ? 'Get & Install App' : 'Inspect Specifications',
+          el('span', {}, ['→'])
+        ]),
       ]),
-      el('h2', { class: 'text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3' }, [app.title]),
-      el('p', { class: 'text-sm sm:text-lg font-medium text-slate-200 mb-2 sm:mb-3' }, [app.tagline ?? '']),
-      el('p', { class: 'text-xs sm:text-sm text-slate-400 line-clamp-2 sm:line-clamp-3 mb-5 max-w-xl leading-relaxed' }, [app.description ?? '']),
-      el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-white text-slate-950 font-bold text-xs sm:text-sm shadow-md transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
-        released(app) ? 'Get & Install App' : 'Inspect Specifications',
-        el('span', {}, ['→'])
+      el('div', { class: 'lg:col-span-5 w-full flex justify-center items-center' }, [
+        app.screenshots?.length
+          ? framed(app.screenshots[0])
+          : el('div', { class: 'w-full max-w-sm p-6 bg-slate-950/60 border border-slate-800 flex flex-col items-center justify-center text-center' }, [
+              icon(app, 'large'),
+              el('div', { class: 'mt-4 font-bold text-base text-white' }, [app.title]),
+              el('div', { class: 'mt-1 text-xs text-slate-400 font-mono' }, [app.publisher ?? 'Verified Publisher']),
+              el('div', { class: 'mt-3 inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/50' }, [status(app)])
+            ])
       ]),
-    ]),
-    el('div', { class: 'lg:col-span-5 w-full flex justify-center items-center' }, [
-      app.screenshots?.length
-        ? framed(app.screenshots[0])
-        : el('div', { class: 'w-full max-w-sm p-6 bg-slate-950/60 border border-slate-800/80 backdrop-blur-sm flex flex-col items-center justify-center text-center shadow-xl' }, [
-            icon(app, 'large'),
-            el('div', { class: 'mt-4 font-bold text-base text-white' }, [app.title]),
-            el('div', { class: 'mt-1 text-xs text-slate-400 font-mono' }, [app.publisher ?? 'Verified Publisher']),
-            el('div', { class: 'mt-3 inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/50' }, [status(app)])
-          ])
-    ]),
+    ])
   ])));
 
-  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] gap-6 overflow-x-auto pb-4 scroll-smooth w-full' }, slides), 'featured app');
+  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] overflow-x-auto scroll-smooth w-full scrollbar-none' }, slides), 'featured app');
   const offset = (/** @type {HTMLElement} */ s) => s.offsetLeft - track.offsetLeft;
   const dots = slides.map((slide, i) => {
     const d = el('button', { type: 'button', class: 'dot', 'aria-label': `Show ${featured[i].title}` });
@@ -176,9 +178,9 @@ function spotlight(apps) {
     const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
   });
-  return el('section', { class: 'w-full mb-10 sm:mb-12 space-y-4', 'aria-label': 'Featured apps' }, [
+  return el('section', { class: 'w-full mb-8 relative', 'aria-label': 'Featured apps' }, [
     track,
-    slides.length > 1 ? el('div', { class: 'flex items-center justify-between px-2 pt-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
+    slides.length > 1 ? el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between pt-3 pb-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
   ]);
 }
 
@@ -241,38 +243,43 @@ function renderHome() {
   const apps = state.apps;
   if (!apps.length) return [el('p', { class: 'text-center py-20 text-slate-500' }, ['No apps in catalog yet.'])];
   
-  const out = [
-    spotlight(apps),
+  const shelves = [
     chips(),
     shelf('Available Now', apps.filter(released)),
   ];
 
   for (const c of categories()) {
     const inCat = apps.filter((a) => (a.categories ?? []).includes(c));
-    if (inCat.length > 1) out.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
+    if (inCat.length > 1) shelves.push(shelf(c, inCat, `#/category/${encodeURIComponent(c)}`));
   }
-  out.push(shelf(`Shipped with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
-  out.push(shelf('Coming Soon', apps.filter((a) => !released(a) && !a.included)));
-  return out;
+  shelves.push(shelf(`Shipped with ${state.config.install.productName}`, apps.filter((a) => !released(a) && a.included)));
+  shelves.push(shelf('Coming Soon', apps.filter((a) => !released(a) && !a.included)));
+
+  return [
+    spotlight(apps),
+    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-2' }, shelves)
+  ];
 }
 
 // Search and List view: uses exact same card grid (`tile`) as the main store
 function renderList(title, apps, current) {
   return [
-    el('div', { class: 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 mb-6' }, [
-      el('div', {}, [
-        el('h1', { class: 'text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white' }, [title]),
-        el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} application${apps.length === 1 ? '' : 's'} matching`]),
-      ]),
-      el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline', onclick: () => { clearSearch(); } }, ['← Reset search']),
-    ]),
-    chips(current),
-    apps.length
-      ? el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' }, apps.map(tile))
-      : el('div', { class: 'text-center py-20 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800' }, [
-          el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps found matching "${state.query}".` : 'No apps here yet.']),
-          el('button', { type: 'button', class: 'mt-3 px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900', onclick: () => { clearSearch(); route(); } }, ['Show all apps']),
+    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6' }, [
+      el('div', { class: 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 mb-6' }, [
+        el('div', {}, [
+          el('h1', { class: 'text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white' }, [title]),
+          el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} application${apps.length === 1 ? '' : 's'} matching`]),
         ]),
+        el('a', { href: '#/', class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline', onclick: () => { clearSearch(); } }, ['← Reset search']),
+      ]),
+      chips(current),
+      apps.length
+        ? el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' }, apps.map(tile))
+        : el('div', { class: 'text-center py-20 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800' }, [
+            el('p', { class: 'text-slate-500 text-sm' }, [state.query ? `No apps found matching "${state.query}".` : 'No apps here yet.']),
+            el('button', { type: 'button', class: 'mt-3 px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white dark:bg-white dark:text-slate-900', onclick: () => { clearSearch(); route(); } }, ['Show all apps']),
+          ]),
+    ])
   ];
 }
 
@@ -403,55 +410,57 @@ function renderApp(id) {
   const similar = state.apps.filter((a) => a !== app && (a.categories ?? []).some((c) => (app.categories ?? []).includes(c)));
 
   return [
-    el('a', { class: 'inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 my-4 hover:underline', href: '#/' }, ['← Back to store']),
-    
-    // App Header Bar with sharp edges
-    accent(app, el('div', { class: 'p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6' }, [
-      el('div', { class: 'flex items-center gap-5' }, [
-        icon(app, 'large'),
-        el('div', {}, [
-          el('h1', { class: 'text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white' }, [app.title]),
-          el('p', { class: 'text-xs sm:text-sm font-semibold text-brand-600 dark:text-brand-400 mt-1' }, [app.publisher ?? 'Verified Publisher']),
-          app.tagline ? el('p', { class: 'text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl' }, [app.tagline]) : '',
+    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6' }, [
+      el('a', { class: 'inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 mb-6 hover:underline', href: '#/' }, ['← Back to store']),
+      
+      // App Header Bar with sharp edges
+      accent(app, el('div', { class: 'p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6' }, [
+        el('div', { class: 'flex items-center gap-5' }, [
+          icon(app, 'large'),
+          el('div', {}, [
+            el('h1', { class: 'text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white' }, [app.title]),
+            el('p', { class: 'text-xs sm:text-sm font-semibold text-brand-600 dark:text-brand-400 mt-1' }, [app.publisher ?? 'Verified Publisher']),
+            app.tagline ? el('p', { class: 'text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl' }, [app.tagline]) : '',
+          ]),
         ]),
-      ]),
-      el('div', { class: 'flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2' }, [
-        installButton(app, true),
-        el('span', { class: 'text-[11px] text-slate-400 dark:text-slate-500' }, [
-          released(app) ? `Launches ${state.config.install.productName} installer` : status(app)
+        el('div', { class: 'flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2' }, [
+          installButton(app, true),
+          el('span', { class: 'text-[11px] text-slate-400 dark:text-slate-500' }, [
+            released(app) ? `Launches ${state.config.install.productName} installer` : status(app)
+          ]),
         ]),
-      ]),
-    ])),
+      ])),
 
-    facts(app),
-    gallery(app),
+      facts(app),
+      gallery(app),
 
-    // Content Grid: About + Technical Provenance
-    el('div', { class: 'grid grid-cols-1 lg:grid-cols-12 gap-8 my-8' }, [
-      el('div', { class: 'lg:col-span-8 space-y-8' }, [
-        el('section', {}, [
-          el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['About this app']),
-          el('p', { class: 'text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-prose' }, [app.description ?? 'No description provided.']),
-          app.highlights?.length ? el('div', { class: 'mt-4 flex flex-wrap gap-2' }, app.highlights.map((h) =>
-            el('span', { class: 'px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }, [h])
-          )) : '',
+      // Content Grid: About + Technical Provenance
+      el('div', { class: 'grid grid-cols-1 lg:grid-cols-12 gap-8 my-8' }, [
+        el('div', { class: 'lg:col-span-8 space-y-8' }, [
+          el('section', {}, [
+            el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['About this app']),
+            el('p', { class: 'text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-prose' }, [app.description ?? 'No description provided.']),
+            app.highlights?.length ? el('div', { class: 'mt-4 flex flex-wrap gap-2' }, app.highlights.map((h) =>
+              el('span', { class: 'px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }, [h])
+            )) : '',
+          ]),
+          el('section', {}, [
+            el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['Sandbox Permissions']),
+            permissions(app),
+          ]),
         ]),
-        el('section', {}, [
-          el('h2', { class: 'text-lg font-bold text-slate-900 dark:text-white mb-3' }, ['Sandbox Permissions']),
-          permissions(app),
+        el('div', { class: 'lg:col-span-4 space-y-6' }, [
+          provenance(app),
+          el('div', { class: 'p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3 text-xs' }, [
+            el('h3', { class: 'font-bold text-slate-900 dark:text-white' }, ['Distribution Details']),
+            el('div', { class: 'flex justify-between text-slate-500' }, ['Distribution', 'Open Source CI']),
+            app.repository ? el('a', { href: app.repository, target: '_blank', rel: 'noopener', class: 'block text-brand-600 dark:text-brand-400 font-semibold hover:underline' }, ['View Repository on GitHub →']) : '',
+          ]),
         ]),
       ]),
-      el('div', { class: 'lg:col-span-4 space-y-6' }, [
-        provenance(app),
-        el('div', { class: 'p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3 text-xs' }, [
-          el('h3', { class: 'font-bold text-slate-900 dark:text-white' }, ['Distribution Details']),
-          el('div', { class: 'flex justify-between text-slate-500' }, ['Distribution', 'Open Source CI']),
-          app.repository ? el('a', { href: app.repository, target: '_blank', rel: 'noopener', class: 'block text-brand-600 dark:text-brand-400 font-semibold hover:underline' }, ['View Repository on GitHub →']) : '',
-        ]),
-      ]),
-    ]),
 
-    similar.length ? shelf('Similar Applications', similar) : '',
+      similar.length ? shelf('Similar Applications', similar) : '',
+    ])
   ];
 }
 

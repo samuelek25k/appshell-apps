@@ -12,5 +12,8 @@
     "Live desktop dashboard widget",
     "Zero network requests & private storage"
   ],
-  "whatsNew": "Initial release with desktop notifications."
+  "whatsNew": "Initial release with desktop notifications.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
 }

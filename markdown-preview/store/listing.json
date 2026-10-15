@@ -12,5 +12,8 @@
     "Mermaid architecture and flowchart rendering",
     "Export cleanly to styled PDF or HTML"
   ],
-  "whatsNew": "Initial release with Mermaid and KaTeX support."
+  "whatsNew": "Initial release with Mermaid and KaTeX support.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
 }

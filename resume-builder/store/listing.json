@@ -5,7 +5,9 @@
     "Developer Tools"
   ],
   "icon": "store/icon.svg",
-  "screenshots": [],
+  "screenshots": [
+    "store/screenshot-1.png"
+  ],
   "tagline": "Build professional, AI-tailored resumes with multi-model freedom.",
   "accent": "#0284c7",
   "highlights": [

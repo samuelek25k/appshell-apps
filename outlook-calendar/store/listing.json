@@ -13,5 +13,8 @@
     "PowerShell COM automation on Windows",
     "100% offline with zero external network requests"
   ],
-  "whatsNew": "Native desktop script backend with zero registration overhead."
+  "whatsNew": "Native desktop script backend with zero registration overhead.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
 }

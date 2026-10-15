@@ -12,5 +12,8 @@
     "Validates schema and syntax errors instantly",
     "100% offline with zero network egress"
   ],
-  "whatsNew": "Initial release with syntax highlighting and tree view."
+  "whatsNew": "Initial release with syntax highlighting and tree view.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
 }

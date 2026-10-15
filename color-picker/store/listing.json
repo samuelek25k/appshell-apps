@@ -12,5 +12,8 @@
     "WCAG 2.1 AAA contrast audit score",
     "Export to Tailwind CSS and CSS variables"
   ],
-  "whatsNew": "Initial release with OKLCH gradient generators."
+  "whatsNew": "Initial release with OKLCH gradient generators.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
 }

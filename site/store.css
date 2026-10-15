@@ -20,13 +20,13 @@
 .track > * {
   scroll-snap-align: start;
 }
-.track.more-right {
+.track.more-right:not(.track-hero) {
   mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
 }
-.track.more-left {
+.track.more-left:not(.track-hero) {
   mask-image: linear-gradient(to left, #000 calc(100% - 48px), transparent);
 }
-.track.more-left.more-right {
+.track.more-left.more-right:not(.track-hero) {
   mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent);
 }
 

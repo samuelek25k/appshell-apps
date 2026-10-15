@@ -129,7 +129,7 @@ function scroller(track, label) {
   return { track, controls };
 }
 
-/** Featured apps: true full-width edge-to-edge hero slider with clean sharp styling (no heavy corner shadows) */
+/** Featured apps: true full-width clean banner slider without heavy gradients or shadows */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
@@ -137,19 +137,19 @@ function spotlight(apps) {
   if (!featured.length) return '';
   
   const slides = featured.map((app) => accent(app, el('a', {
-    class: 'group relative w-full overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/70 to-slate-900 border-b border-slate-800 transition-colors block',
+    class: 'group relative w-full overflow-hidden text-slate-900 dark:text-white no-underline bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors block',
     href: appLink(app)
   }, [
-    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center' }, [
-      el('div', { class: 'lg:col-span-7 flex flex-col items-start z-10' }, [
+    el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center' }, [
+      el('div', { class: 'lg:col-span-7 flex flex-col items-start' }, [
         el('div', { class: 'flex items-center gap-2 mb-3' }, [
-          el('span', { class: 'inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20' }, [category(app)]),
+          el('span', { class: 'inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20' }, [category(app)]),
           badge(app),
         ]),
-        el('h2', { class: 'text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3' }, [app.title]),
-        el('p', { class: 'text-sm sm:text-lg font-medium text-slate-200 mb-2 sm:mb-3' }, [app.tagline ?? '']),
-        el('p', { class: 'text-xs sm:text-sm text-slate-400 line-clamp-2 sm:line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
-        el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-white text-slate-950 font-bold text-xs sm:text-sm transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
+        el('h2', { class: 'text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2 sm:mb-3' }, [app.title]),
+        el('p', { class: 'text-sm sm:text-lg font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3' }, [app.tagline ?? '']),
+        el('p', { class: 'text-xs sm:text-sm text-slate-500 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
+        el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-bold text-xs sm:text-sm transition-all group-hover:bg-brand-600 dark:group-hover:bg-slate-100 group-hover:gap-3' }, [
           released(app) ? 'Get & Install App' : 'Inspect Specifications',
           el('span', {}, ['→'])
         ]),
@@ -157,17 +157,17 @@ function spotlight(apps) {
       el('div', { class: 'lg:col-span-5 w-full flex justify-center items-center' }, [
         app.screenshots?.length
           ? framed(app.screenshots[0])
-          : el('div', { class: 'w-full max-w-sm p-6 bg-slate-950/60 border border-slate-800 flex flex-col items-center justify-center text-center' }, [
+          : el('div', { class: 'w-full max-w-sm p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center' }, [
               icon(app, 'large'),
-              el('div', { class: 'mt-4 font-bold text-base text-white' }, [app.title]),
-              el('div', { class: 'mt-1 text-xs text-slate-400 font-mono' }, [app.publisher ?? 'Verified Publisher']),
-              el('div', { class: 'mt-3 inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/50' }, [status(app)])
+              el('div', { class: 'mt-4 font-bold text-base text-slate-900 dark:text-white' }, [app.title]),
+              el('div', { class: 'mt-1 text-xs text-slate-500 dark:text-slate-400 font-mono' }, [app.publisher ?? 'Verified Publisher']),
+              el('div', { class: 'mt-3 inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800' }, [status(app)])
             ])
       ]),
     ])
   ])));
 
-  const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[100%] overflow-x-auto scroll-smooth w-full scrollbar-none' }, slides), 'featured app');
+  const { track, controls } = scroller(el('div', { class: 'track-hero grid grid-flow-col auto-cols-[100%] overflow-x-auto scroll-smooth w-full scrollbar-none' }, slides), 'featured app');
   const offset = (/** @type {HTMLElement} */ s) => s.offsetLeft - track.offsetLeft;
   const dots = slides.map((slide, i) => {
     const d = el('button', { type: 'button', class: 'dot', 'aria-label': `Show ${featured[i].title}` });
@@ -178,9 +178,9 @@ function spotlight(apps) {
     const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
   });
-  return el('section', { class: 'w-full mb-8 relative', 'aria-label': 'Featured apps' }, [
+  return el('section', { class: 'w-full mb-8 relative border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50', 'aria-label': 'Featured apps' }, [
     track,
-    slides.length > 1 ? el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between pt-3 pb-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
+    slides.length > 1 ? el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-2' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
   ]);
 }
 

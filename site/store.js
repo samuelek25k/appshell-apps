@@ -66,11 +66,16 @@ const badge = (app) => {
   return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30' }, ['Soon']);
 };
 
-/** Merges catalog releases with repository listings; paths become absolute URLs. */
-function merge(catalog, catalogBase, listings) {
-  const abs = (/** @type {string} */ base) => (/** @type {string | undefined} */ p) => (p ? new URL(p, base).href : undefined);
+/** Merges catalog releases with repository listings; paths become absolute URLs (supporting jsDelivr CDN). */
+function merge(catalog, catalogBase, listings, cdnBase = '') {
+  const abs = (/** @type {string} */ base) => (/** @type {string | undefined} */ p) => {
+    if (!p) return undefined;
+    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+    return new URL(p, base).href;
+  };
   const fromCatalog = abs(catalogBase);
   const fromPage = abs(location.href);
+  const fromCdn = cdnBase ? abs(cdnBase) : fromPage;
   const byId = new Map();
   for (const c of catalog.apps ?? []) {
     byId.set(c.id, { ...c, icon: fromCatalog(c.icon), screenshots: (c.screenshots ?? []).map(fromCatalog) });
@@ -81,8 +86,8 @@ function merge(catalog, catalogBase, listings) {
       ...l, ...Object.fromEntries(Object.entries(c).filter(([, v]) => v !== undefined)),
       ...Object.fromEntries(['description', 'categories', 'tagline', 'accent', 'highlights', 'whatsNew']
         .filter((k) => l[k] !== undefined).map((k) => [k, l[k]])),
-      icon: fromPage(l.icon) ?? c.icon,
-      screenshots: l.screenshots?.length ? l.screenshots.map(fromPage) : (c.screenshots ?? []),
+      icon: (l.icon ? fromCdn(l.icon) : undefined) ?? c.icon,
+      screenshots: l.screenshots?.length ? l.screenshots.map(fromCdn) : (c.screenshots ?? []),
       repository: c.repository ?? l.source,
       releases: c.releases ?? [],
     });
@@ -132,24 +137,31 @@ function spotlight(apps) {
   if (!featured.length) return '';
   
   const slides = featured.map((app) => accent(app, el('a', {
-    class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 sm:p-12 md:p-14 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700 w-full',
+    class: 'group relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-10 md:p-12 overflow-hidden text-white no-underline bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 shadow-2xl transition-all duration-300 hover:border-slate-700 w-full',
     href: appLink(app)
   }, [
-    el('div', { class: 'lg:col-span-6 flex flex-col items-start z-10' }, [
-      el('div', { class: 'flex items-center gap-2 mb-4' }, [
-        el('span', { class: 'inline-flex items-center px-3 py-1 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md' }, [category(app)]),
+    el('div', { class: 'lg:col-span-7 flex flex-col items-start z-10' }, [
+      el('div', { class: 'flex items-center gap-2 mb-3' }, [
+        el('span', { class: 'inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-white/10 text-indigo-200 border border-white/20 backdrop-blur-md' }, [category(app)]),
         badge(app),
       ]),
-      el('h2', { class: 'text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3' }, [app.title]),
-      el('p', { class: 'text-base sm:text-xl font-medium text-slate-200 mb-3' }, [app.tagline ?? '']),
-      el('p', { class: 'text-sm sm:text-base text-slate-400 line-clamp-3 mb-6 max-w-xl leading-relaxed' }, [app.description ?? '']),
-      el('span', { class: 'inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-950 font-bold text-sm shadow-md transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
+      el('h2', { class: 'text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 sm:mb-3' }, [app.title]),
+      el('p', { class: 'text-sm sm:text-lg font-medium text-slate-200 mb-2 sm:mb-3' }, [app.tagline ?? '']),
+      el('p', { class: 'text-xs sm:text-sm text-slate-400 line-clamp-2 sm:line-clamp-3 mb-5 max-w-xl leading-relaxed' }, [app.description ?? '']),
+      el('span', { class: 'inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-white text-slate-950 font-bold text-xs sm:text-sm shadow-md transition-all group-hover:bg-brand-50 group-hover:gap-3' }, [
         released(app) ? 'Get & Install App' : 'Inspect Specifications',
         el('span', {}, ['→'])
       ]),
     ]),
-    el('div', { class: 'lg:col-span-6 w-full flex justify-center' }, [
-      app.screenshots?.length ? framed(app.screenshots[0]) : icon(app, 'large')
+    el('div', { class: 'lg:col-span-5 w-full flex justify-center items-center' }, [
+      app.screenshots?.length
+        ? framed(app.screenshots[0])
+        : el('div', { class: 'w-full max-w-sm p-6 bg-slate-950/60 border border-slate-800/80 backdrop-blur-sm flex flex-col items-center justify-center text-center shadow-xl' }, [
+            icon(app, 'large'),
+            el('div', { class: 'mt-4 font-bold text-base text-white' }, [app.title]),
+            el('div', { class: 'mt-1 text-xs text-slate-400 font-mono' }, [app.publisher ?? 'Verified Publisher']),
+            el('div', { class: 'mt-3 inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/50' }, [status(app)])
+          ])
     ]),
   ])));
 
@@ -164,7 +176,7 @@ function spotlight(apps) {
     const at = slides.reduce((best, s, i) => (Math.abs(offset(s) - track.scrollLeft) < Math.abs(offset(slides[best]) - track.scrollLeft) ? i : best), 0);
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)));
   });
-  return el('section', { class: 'w-full mb-12 space-y-4', 'aria-label': 'Featured apps' }, [
+  return el('section', { class: 'w-full mb-10 sm:mb-12 space-y-4', 'aria-label': 'Featured apps' }, [
     track,
     slides.length > 1 ? el('div', { class: 'flex items-center justify-between px-2 pt-1' }, [el('div', { class: 'flex items-center gap-2' }, dots), controls]) : '',
   ]);
@@ -172,18 +184,18 @@ function spotlight(apps) {
 
 /** Unified Marketplace Card (used for all shelves and search results) */
 const tile = (app) => el('a', {
-  class: 'group flex flex-col justify-between p-5 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 shadow-sm hover:shadow-md transition-all no-underline text-inherit',
+  class: 'group flex flex-col justify-between p-4 sm:p-5 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 shadow-sm hover:shadow-md transition-all no-underline text-inherit',
   href: appLink(app)
 }, [
   el('div', {}, [
-    el('div', { class: 'flex items-start justify-between gap-3 mb-4' }, [
+    el('div', { class: 'flex items-start justify-between gap-3 mb-3 sm:mb-4' }, [
       icon(app),
       badge(app),
     ]),
-    el('h3', { class: 'font-bold text-base text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors' }, [app.title]),
-    el('p', { class: 'mt-1.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed' }, [app.tagline ?? app.description ?? '']),
+    el('h3', { class: 'font-bold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors' }, [app.title]),
+    el('p', { class: 'mt-1 sm:mt-1.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed' }, [app.tagline ?? app.description ?? '']),
   ]),
-  el('div', { class: 'mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400' }, [
+  el('div', { class: 'mt-4 sm:mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400' }, [
     el('span', { class: 'font-semibold text-slate-700 dark:text-slate-300' }, [category(app)]),
     el('span', { class: 'font-mono text-[11px] text-slate-400' }, [status(app)]),
   ]),
@@ -191,10 +203,10 @@ const tile = (app) => el('a', {
 
 function shelf(title, apps, href) {
   if (!apps.length) return '';
-  return el('section', { class: 'mb-12 w-full' }, [
+  return el('section', { class: 'mb-10 sm:mb-12 w-full' }, [
     el('div', { class: 'flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80 dark:border-slate-800/80' }, [
-      el('div', { class: 'flex items-baseline gap-3' }, [
-        el('h2', { class: 'text-xl font-bold tracking-tight text-slate-900 dark:text-white' }, [title]),
+      el('div', { class: 'flex items-baseline gap-2 sm:gap-3' }, [
+        el('h2', { class: 'text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white' }, [title]),
         el('span', { class: 'text-xs text-slate-500 font-mono' }, [`${apps.length} app${apps.length > 1 ? 's' : ''}`]),
       ]),
       href ? el('a', { href, class: 'text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline' }, ['Browse all →']) : '',
@@ -211,7 +223,7 @@ function chips(current = '') {
   const all = categories();
   if (!all.length) return '';
   const chip = (label, href, on) => el('a', {
-    class: `px-4 py-2 text-xs font-semibold transition-all no-underline ${
+    class: `inline-flex items-center flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold whitespace-nowrap transition-all no-underline ${
       on
         ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
         : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -219,7 +231,7 @@ function chips(current = '') {
     href,
     'aria-current': on ? 'page' : 'false'
   }, [label]);
-  return el('nav', { class: 'flex items-center gap-2 overflow-x-auto py-2 mb-8 scrollbar-none w-full', 'aria-label': 'Categories' }, [
+  return el('nav', { class: 'flex items-center gap-2 overflow-x-auto py-2 mb-6 sm:mb-8 scrollbar-none w-full flex-nowrap', 'aria-label': 'Categories' }, [
     chip('All apps', '#/', !current),
     ...all.map((c) => chip(c, `#/category/${encodeURIComponent(c)}`, c === current)),
   ]);
@@ -247,7 +259,7 @@ function renderHome() {
 // Search and List view: uses exact same card grid (`tile`) as the main store
 function renderList(title, apps, current) {
   return [
-    el('div', { class: 'py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 mb-6' }, [
+    el('div', { class: 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 mb-6' }, [
       el('div', {}, [
         el('h1', { class: 'text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white' }, [title]),
         el('p', { class: 'text-xs text-slate-500 mt-1 font-mono' }, [`${apps.length} application${apps.length === 1 ? '' : 's'} matching`]),
@@ -559,7 +571,11 @@ async function start() {
   }
 
   state.config = await (await fetch('config.json')).json();
-  const base = new URL(state.config.catalog, location.href).href;
+  const cdn = state.config.cdn?.enabled && state.config.cdn;
+  const cdnBase = cdn ? `https://cdn.jsdelivr.net/gh/${cdn.repository}@${cdn.branch}/` : '';
+  const localCatalogUrl = new URL(state.config.catalog, location.href).href;
+  const catalogUrl = cdnBase ? `${cdnBase}${state.config.catalog}` : localCatalogUrl;
+  const listingsUrl = cdnBase ? `${cdnBase}apps.json` : 'apps.json';
   
   const getProduct = $('get-product');
   if (getProduct) {
@@ -584,9 +600,25 @@ async function start() {
     });
   }
 
-  const load = (url) => fetch(url, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
-  const [catalog, listings] = await Promise.all([load(base), load('apps.json')]);
-  state.apps = merge(catalog, base, listings);
+  const load = async (url, fallbackUrl) => {
+    try {
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (res.ok) return await res.json();
+    } catch {}
+    if (fallbackUrl) {
+      try {
+        const res = await fetch(fallbackUrl, { cache: 'no-cache' });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+    return {};
+  };
+
+  const [catalog, listings] = await Promise.all([
+    load(catalogUrl, localCatalogUrl),
+    load(listingsUrl, 'apps.json')
+  ]);
+  state.apps = merge(catalog, cdnBase || localCatalogUrl, listings, cdnBase);
 
   $('lightbox-prev').addEventListener('click', () => stepShot(-1));
   $('lightbox-next').addEventListener('click', () => stepShot(1));

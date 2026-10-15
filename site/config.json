@@ -8,6 +8,12 @@
     "productName": "Appshell",
     "downloadUrl": "https://github.com/samuelek25k/appshell/releases"
   },
+  "cdn": {
+    "enabled": true,
+    "provider": "jsdelivr",
+    "repository": "samuelek25k/appshell-apps",
+    "branch": "main"
+  },
   "featured": [
     "outlook-calendar",
     "quick-notes",

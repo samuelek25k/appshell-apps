@@ -1,6 +1,6 @@
 {
   "id": "resume-builder",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "title": "AI Resume Builder",
   "publisher": "Appshell",
   "capabilities": {
@@ -17,7 +17,8 @@
       "anthropic-api-key",
       "gemini-api-key",
       "groq-api-key"
-    ]
+    ],
+    "userEndpoints": true
   },
   "engines": {
     "appshell": "^0.1"

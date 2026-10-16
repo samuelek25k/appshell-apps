@@ -42,7 +42,13 @@ export const PROVIDERS = {
   }
 };
 
-export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt }) {
+export const DEFAULT_OLLAMA = 'http://localhost:11434';
+
+export function ollamaBase(value) {
+  return (value || DEFAULT_OLLAMA).trim().replace(/\/+$/, '');
+}
+
+export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt, endpoint }) {
   const provider = PROVIDERS[providerId];
   if (!provider) throw new Error(`Unknown provider: ${providerId}`);
   if (provider.requiresKey && !apiKey?.trim()) {

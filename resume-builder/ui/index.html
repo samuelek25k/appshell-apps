@@ -181,13 +181,23 @@
           <option value="openai">OpenAI (GPT-4o / mini)</option>
           <option value="anthropic">Anthropic Claude</option>
           <option value="groq">Groq (Llama)</option>
-          <option value="ollama">Local Ollama (localhost:11434)</option>
+          <option value="ollama">Ollama (this computer or your network)</option>
         </select>
       </div>
 
       <div>
         <label class="block text-xs font-semibold mb-1">Model</label>
         <select id="llm-model" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono"></select>
+      </div>
+
+      <div id="endpoint-row" hidden>
+        <label class="block text-xs font-semibold mb-1" for="llm-endpoint">Server address</label>
+        <input type="text" id="llm-endpoint" placeholder="http://localhost:11434" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono">
+        <div class="flex items-center gap-2 mt-1">
+          <button type="button" id="btn-test-endpoint" class="px-3 py-1 text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white">Test connection</button>
+          <span id="endpoint-status" class="text-[11px] text-slate-500"></span>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1">Use this computer or a server on your network. Appshell asks you to allow the address once.</p>
       </div>
 
       <div>

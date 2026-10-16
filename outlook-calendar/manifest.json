@@ -10,8 +10,7 @@
     "appshell": "^0.1"
   },
   "entry": {
-    "ui": "ui/index.html",
-    "backend": "backend/get-meetings.cjs"
+    "ui": "ui/index.html"
   },
   "widgets": [
     {

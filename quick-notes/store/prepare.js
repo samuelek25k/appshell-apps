@@ -4,7 +4,7 @@
     document.getElementById('add').requestSubmit();
     await new Promise((r) => setTimeout(r, 150));
   };
-  await add('Check gate assignments for the evening wave before 17:00');
-  await add('Ask the platform team about tenant config for the ops pilot');
+  await add('Buy milk and groceries on the way home');
+  await add('Book dentist appointment for next Tuesday at 10am');
   await add('Release checklist:\n- bump version in manifest.json\n- merge\n- tag the release');
 })()

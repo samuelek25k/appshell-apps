@@ -65,7 +65,7 @@ export class CredentialVault {
     this.keyCache.set(providerId, apiKey);
     if (sdk?.secrets?.set) {
       try {
-        await sdk.secrets.set(`${providerId}_api_key`, apiKey);
+        await sdk.secrets.set(`${providerId}-api-key`, apiKey);
         return;
       } catch (e) {
         console.warn('sdk.secrets.set unavailable, falling back to AES-GCM vault', e);
@@ -82,7 +82,7 @@ export class CredentialVault {
     }
     if (sdk?.secrets?.get) {
       try {
-        const val = await sdk.secrets.get(`${providerId}_api_key`);
+        const val = await sdk.secrets.get(`${providerId}-api-key`);
         if (val) {
           this.keyCache.set(providerId, val);
           return val;
@@ -102,7 +102,7 @@ export class CredentialVault {
   async clearKey(providerId, sdk = null) {
     this.keyCache.delete(providerId);
     if (sdk?.secrets?.delete) {
-      try { await sdk.secrets.delete(`${providerId}_api_key`); } catch {}
+      try { await sdk.secrets.delete(`${providerId}-api-key`); } catch {}
     }
     localStorage.removeItem(`__rb_sec_${providerId}`);
   }

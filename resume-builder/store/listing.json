@@ -1,5 +1,5 @@
 {
-  "description": "Craft, tailor, and polish modern ATS-friendly resumes with multi-provider AI assistance. Supports OpenAI (GPT-4o), Anthropic Claude, Google Gemini, Groq, and local Ollama models. Stores API keys securely using Web Crypto AES-GCM and Appshell secrets. Export directly to print-ready PDF, HTML, or structured JSON.",
+  "description": "Write and edit resumes with AI assistance. Connects to OpenAI, Anthropic, Gemini, Groq, or local Ollama models. Stores API keys in encrypted local storage. Exports to PDF, HTML, and JSON.",
   "categories": [
     "Productivity",
     "Developer Tools"
@@ -8,13 +8,13 @@
   "screenshots": [
     "store/screenshot-1.png"
   ],
-  "tagline": "Build professional, AI-tailored resumes with multi-model freedom.",
+  "tagline": "Write and export resumes with LLM assistance.",
   "accent": "#0284c7",
   "highlights": [
-    "Multi-LLM: OpenAI, Anthropic, Gemini, Groq, Ollama",
+    "Connect to OpenAI, Anthropic, Gemini, Groq, or Ollama",
     "Encrypted API credential storage (AES-GCM)",
-    "ATS-optimized bullet points & job tailoring",
-    "Instant print-ready PDF and JSON export"
+    "Tailor resume bullet points to job descriptions",
+    "Export to PDF, HTML, and JSON"
   ],
-  "whatsNew": "Initial release with multi-LLM support and secure credential storage."
+  "whatsNew": "Initial release with multi-LLM support and credential encryption."
 }

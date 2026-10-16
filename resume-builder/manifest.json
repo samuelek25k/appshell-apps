@@ -12,10 +12,10 @@
       "localhost"
     ],
     "secrets": [
-      "openai_api_key",
-      "anthropic_api_key",
-      "gemini_api_key",
-      "groq_api_key"
+      "openai-api-key",
+      "anthropic-api-key",
+      "gemini-api-key",
+      "groq-api-key"
     ]
   },
   "engines": {

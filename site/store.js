@@ -1,5 +1,4 @@
-// Static app store over a catalog (index.json) and repository listings (apps.json).
-// Modernized with Tailwind CSS, light/dark theming, and an authentic developer UX.
+// Static app store client: renders catalog releases (index.json) merged with repository listings (apps.json).
 
 /**
  * How an Install button reaches a product. One per `install.type` in config.json.

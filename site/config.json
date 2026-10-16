@@ -16,11 +16,11 @@
   },
   "featured": [
     "resume-builder",
-    "outlook-calendar",
     "quick-notes",
     "pomodoro",
     "json-tools",
     "color-picker",
+    "clipboard-manager",
     "world-clock",
     "markdown-preview",
     "welcome"

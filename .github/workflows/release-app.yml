@@ -4,6 +4,12 @@ name: release-app
 on:
   push:
     tags: ['*-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'App release tag to package and publish (e.g. quick-notes-v0.1.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -19,30 +25,40 @@ jobs:
       - name: Package
         id: pkg
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           id="${TAG%-v*}"; version="${TAG##*-v}"
           test -f "$id/manifest.json" || { echo "::error::no app folder $id"; exit 1; }
-          git checkout "$TAG" -- "$id"
+          if git rev-parse "$TAG^{commit}" >/dev/null 2>&1; then
+            git checkout "$TAG" -- "$id"
+            commit="$(git rev-parse "$TAG^{commit}")"
+          else
+            commit="$(git rev-parse HEAD)"
+          fi
           manifest_version=$(node -p "require('./$id/manifest.json').version")
           [ "$manifest_version" = "$version" ] || { echo "::error::$id/manifest.json is $manifest_version, tag says $version"; exit 1; }
           file="$id-$version.tgz"
           # Regular files only (the host refuses links anyway); store listing assets stay out.
           tar --exclude=.git --exclude=./store --owner=0 --group=0 --numeric-owner -czf "$file" -C "$id" .
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "id=$id" >> "$GITHUB_OUTPUT"; echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "file=$file" >> "$GITHUB_OUTPUT"; echo "sha256=$(sha256sum "$file" | cut -c1-64)" >> "$GITHUB_OUTPUT"
-          echo "commit=$(git rev-parse "$TAG^{commit}")" >> "$GITHUB_OUTPUT"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" "${{ steps.pkg.outputs.file }}" --title "${{ github.ref_name }}" --notes "sha256 ${{ steps.pkg.outputs.sha256 }}"
+          TAG: ${{ steps.pkg.outputs.tag }}
+        run: |
+          git tag "$TAG" "${{ steps.pkg.outputs.commit }}" 2>/dev/null || true
+          git push origin "$TAG" 2>/dev/null || true
+          gh release create "$TAG" "${{ steps.pkg.outputs.file }}" --title "$TAG" --notes "sha256 ${{ steps.pkg.outputs.sha256 }}" || gh release upload "$TAG" "${{ steps.pkg.outputs.file }}" --clobber
       - name: Record in catalog
         env:
           ID: ${{ steps.pkg.outputs.id }}
           VERSION: ${{ steps.pkg.outputs.version }}
           SHA256: ${{ steps.pkg.outputs.sha256 }}
           COMMIT: ${{ steps.pkg.outputs.commit }}
-          URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ steps.pkg.outputs.file }}
+          URL: https://github.com/${{ github.repository }}/releases/download/${{ steps.pkg.outputs.tag }}/${{ steps.pkg.outputs.file }}
           REPOSITORY: https://github.com/${{ github.repository }}
         run: |
           git checkout -- . && git clean -fdq

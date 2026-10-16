@@ -1,12 +1,12 @@
 import { storage, widgets } from '/__appshell/sdk.js';
 
 const CITIES = {
-  'Asia/Dubai': 'Dubai', 'Europe/London': 'London', 'America/New_York': 'New York', 'Asia/Kolkata': 'Kochi',
+  'Asia/Dubai': 'Dubai', 'Europe/London': 'London', 'America/New_York': 'New York', 'Asia/Kolkata': 'Kolkata',
   'Asia/Tokyo': 'Tokyo', 'Asia/Singapore': 'Singapore', 'Europe/Paris': 'Paris', 'America/Los_Angeles': 'Los Angeles',
-  'Australia/Sydney': 'Sydney', 'Africa/Johannesburg': 'Johannesburg', 'Asia/Hong_Kong': 'Hong Kong', 'Europe/Frankfurt': 'Frankfurt',
+  'Australia/Sydney': 'Sydney', 'Africa/Johannesburg': 'Johannesburg', 'Asia/Hong_Kong': 'Hong Kong', 'Europe/Berlin': 'Berlin',
 };
 const home = Intl.DateTimeFormat().resolvedOptions().timeZone;
-let zones = (await storage.get('zones')) ?? ['Asia/Dubai', 'Europe/London', 'America/New_York', 'Asia/Kolkata'];
+let zones = (await storage.get('zones')) ?? [...new Set([home, 'Europe/London', 'America/New_York', 'Asia/Tokyo'])];
 
 const time = (zone) => new Intl.DateTimeFormat([], { timeZone: zone, hour: '2-digit', minute: '2-digit' }).format(new Date());
 const day = (zone) => new Intl.DateTimeFormat([], { timeZone: zone, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date());

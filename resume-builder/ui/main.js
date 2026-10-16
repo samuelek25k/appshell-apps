@@ -1,5 +1,5 @@
 import { vault } from './crypto.js';
-import { generateCompletion, PROVIDERS } from './llm.js';
+import { generateCompletion, ollamaBase, PROVIDERS } from './llm.js';
 
 let sdk = null;
 try { sdk = await import('/__appshell/sdk.js'); } catch {}
@@ -68,6 +68,7 @@ let llmSettings = JSON.parse(localStorage.getItem('__rb_llm_settings') || 'null'
   provider: 'gemini',
   model: 'gemini-1.5-flash'
 };
+llmSettings.endpoint ??= '';
 
 const $ = (id) => document.getElementById(id);
 
@@ -448,7 +449,35 @@ async function initLLM() {
     apiKeyInput.placeholder = p.requiresKey ? `Enter ${p.name} API Key` : 'Local model (no key required)';
   };
 
+  const endpointRow = $('endpoint-row');
+  const endpointInput = $('llm-endpoint');
+  const endpointStatus = $('endpoint-status');
+  const showEndpoint = (pId) => { endpointRow.hidden = pId !== 'ollama'; };
+
+  async function allowEndpoint() {
+    const base = ollamaBase(endpointInput.value);
+    if (!sdk?.network) throw new Error('This version of Appshell cannot use a custom address. Update Appshell.');
+    const grant = await sdk.network.requestEndpoint(base);
+    if (!grant.approved) throw new Error('Not allowed. Approve the address to use it.');
+    return base;
+  }
+
+  $('btn-test-endpoint').addEventListener('click', async () => {
+    endpointStatus.textContent = 'Checking…';
+    try {
+      const base = await allowEndpoint();
+      const res = await fetch(`${base}/api/tags`);
+      if (!res.ok) throw new Error(`The server answered HTTP ${res.status}.`);
+      const { models = [] } = await res.json();
+      endpointStatus.textContent = `Connected. ${models.length} model${models.length === 1 ? '' : 's'} available.`;
+    } catch (error) {
+      endpointStatus.textContent = error instanceof TypeError ? 'Cannot reach that address. Is Ollama running and allowed to accept connections?' : error.message;
+    }
+  });
+
   providerSelect.value = llmSettings.provider;
+  endpointInput.value = llmSettings.endpoint;
+  showEndpoint(llmSettings.provider);
   populateModels(llmSettings.provider);
 
   const currentKey = await vault.getKey(llmSettings.provider, sdk);
@@ -457,6 +486,7 @@ async function initLLM() {
   providerSelect.addEventListener('change', async () => {
     const pId = providerSelect.value;
     populateModels(pId);
+    showEndpoint(pId);
     const key = await vault.getKey(pId, sdk);
     apiKeyInput.value = key || '';
     llmSettings.provider = pId;
@@ -479,6 +509,14 @@ async function initLLM() {
     }
     llmSettings.provider = pId;
     llmSettings.model = modelSelect.value;
+    if (pId === 'ollama') {
+      try {
+        llmSettings.endpoint = await allowEndpoint();
+      } catch (error) {
+        endpointStatus.textContent = error.message;
+        return;
+      }
+    }
     localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
     $('modal-llm').close();
     showAiStatus(`Configured ${PROVIDERS[pId].name} (${llmSettings.model})`);
@@ -494,6 +532,7 @@ async function initLLM() {
       const prompt = `Here is my current resume in JSON format:\n${JSON.stringify(resume, null, 2)}\n\nHere is the target job description:\n${jd}\n\nPlease tailor my resume to maximize match and ATS score. Return a valid JSON object matching the exact resume schema.`;
       const res = await generateCompletion({
         providerId: llmSettings.provider,
+        endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
         systemPrompt: 'You are an elite executive career coach and ATS optimization specialist. Output ONLY pure valid JSON without markdown fences.',
@@ -513,6 +552,7 @@ async function initLLM() {
       const prompt = `Current experiences:\n${JSON.stringify(resume.experience, null, 2)}\n\nRewrite and strengthen all bullet points using strong action verbs, quantifiable metrics, and Google "XYZ formula" (Accomplished X, measured by Y, by doing Z). Return ONLY a JSON array of updated experience objects.`;
       const res = await generateCompletion({
         providerId: llmSettings.provider,
+        endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
         systemPrompt: 'You are an expert resume editor. Output ONLY a pure valid JSON array of experience objects without markdown fences.',
@@ -531,6 +571,7 @@ async function initLLM() {
       const prompt = `Candidate profile: ${resume.personal.title}, Skills: ${resume.skills.join(', ')}, Recent roles: ${resume.experience.map(e => e.role + ' at ' + e.company).join(', ')}.\n\nWrite a compelling 3-4 sentence professional executive summary highlighting engineering leadership, problem-solving, and quantifiable impact. Output ONLY the summary text.`;
       const res = await generateCompletion({
         providerId: llmSettings.provider,
+        endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
         systemPrompt: 'You are a professional resume consultant. Return only the summary paragraph.',

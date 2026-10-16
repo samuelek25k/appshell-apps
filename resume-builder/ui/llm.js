@@ -37,12 +37,17 @@ export const PROVIDERS = {
     name: 'Local Ollama',
     defaultModel: 'llama3.2',
     models: ['llama3.2', 'mistral', 'qwen2.5'],
-    endpoint: 'http://localhost:11434/api/chat',
     requiresKey: false,
   }
 };
 
-export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt }) {
+export const DEFAULT_OLLAMA = 'http://localhost:11434';
+
+export function ollamaBase(value) {
+  return (value || DEFAULT_OLLAMA).trim().replace(/\/+$/, '');
+}
+
+export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt, endpoint }) {
   const provider = PROVIDERS[providerId];
   if (!provider) throw new Error(`Unknown provider: ${providerId}`);
   if (provider.requiresKey && !apiKey?.trim()) {
@@ -121,7 +126,7 @@ export async function generateCompletion({ providerId, model, apiKey, systemProm
     }
 
     case 'ollama': {
-      const res = await fetch(provider.endpoint, {
+      const res = await fetch(`${ollamaBase(endpoint)}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -134,7 +139,7 @@ export async function generateCompletion({ providerId, model, apiKey, systemProm
         })
       });
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status} from Ollama. Make sure Ollama is running at localhost:11434`);
+        throw new Error(`HTTP ${res.status} from Ollama. Check the server address in LLM Settings and that Ollama is running there.`);
       }
       const data = await res.json();
       return data.message?.content || '';

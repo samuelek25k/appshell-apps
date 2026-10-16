@@ -13,6 +13,13 @@
           "url": "https://github.com/samuelek25k/appshell-apps/releases/download/resume-builder-v0.1.0/resume-builder-0.1.0.tgz",
           "sha256": "e10c9ff8f5a164fb5c5b2ef730edc85c4055b21c314542b4ffeec1784e0a52bc",
           "commit": "eb8f9e4be426c3f455605d4bb71e45ba5633f8ce"
+        },
+        {
+          "version": "0.1.1",
+          "channel": "stable",
+          "url": "https://github.com/samuelek25k/appshell-apps/releases/download/resume-builder-v0.1.1/resume-builder-0.1.1.tgz",
+          "sha256": "39d141ca3f4cd010710866795d100da9fc9c919e8eeae2c6bf9f21e85128927f",
+          "commit": "346e5fcd37cbfdb613bf2ec95aaa13a67909476f"
         }
       ],
       "description": "Write and edit resumes with AI assistance. Connects to OpenAI, Anthropic, Gemini, Groq, or local Ollama models. Stores API keys in encrypted local storage. Exports to PDF, HTML, and JSON.",

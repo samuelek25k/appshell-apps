@@ -1,19 +1,19 @@
 {
-  "description": "Read today's Outlook calendar directly from your local desktop without creating Azure App registrations or OAuth client secrets. Uses AppleScript on macOS and PowerShell COM automation on Windows. Zero network access required.",
+  "description": "Keep track of today's meetings, schedule, and daily agenda without external dependencies. Import iCalendar (.ics) files, organize your time blocks, and display your next upcoming meeting directly on your Appshell desktop dashboard. 100% offline and private.",
   "categories": [
     "Productivity",
     "Utilities"
   ],
   "icon": "store/icon.svg",
-  "tagline": "Local Outlook calendar reader via AppleScript & PowerShell.",
+  "tagline": "Private offline daily agenda and schedule planner.",
   "accent": "#0078d4",
   "highlights": [
-    "No Azure App registration or Microsoft tenant admin consent",
-    "AppleScript integration on macOS",
-    "PowerShell COM automation on Windows",
-    "100% offline with zero external network requests"
+    "100% offline with zero external network requests",
+    "Import standard iCalendar (.ics) schedule files",
+    "Interactive today agenda and time-block tracking",
+    "Live dashboard widget for upcoming meetings"
   ],
-  "whatsNew": "Native desktop script backend with zero registration overhead.",
+  "whatsNew": "Fully offline schedule management with .ics import and widget support.",
   "screenshots": [
     "store/screenshot-1.png"
   ]

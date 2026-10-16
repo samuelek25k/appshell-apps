@@ -6,15 +6,16 @@ Apps for [Appshell](https://github.com/samuelek25k/appshell), the catalog that l
 
 | App | What it does | Status |
 | --- | --- | --- |
-| [Welcome](welcome) | Verifies your Appshell setup and records visit history via a sandboxed backend. | Released |
+| [AI Resume Builder](resume-builder) | Multi-LLM ATS resume builder with encrypted API credential storage. | Released |
 | [Profile](profile) | Displays your local profile (name, email, role) on your dashboard. | Included with Appshell |
 | [Clipboard History](clipboard-manager) | Local clipboard history and quick snippets with fuzzy search. | Ready to package |
 | [Color Studio](color-picker) | OKLCH, HEX, and HSL converter with WCAG contrast audit score. | Ready to package |
 | [JSON Formatter](json-tools) | Private offline JSON formatting, validation, and linting. | Ready to package |
 | [Markdown Studio](markdown-preview) | Distraction-free Markdown editor with live preview and Mermaid diagrams. | Ready to package |
-| [Outlook Calendar](outlook-calendar) | Calendar agenda view and meeting schedule tracking. | Ready to package |
+| [Outlook & Daily Agenda](outlook-calendar) | Private offline daily agenda and schedule planner with .ics import. | Ready to package |
 | [Pomodoro Timer](pomodoro) | Focus intervals, break alarms, and daily streak tracking. | Ready to package |
 | [Quick Notes](quick-notes) | Lightweight personal scratchpad with newest notes on your dashboard. | Ready to package |
+| [Welcome](welcome) | Starter app verifying setup and visit history via sandboxed backend. | Ready to package |
 | [World Clock](world-clock) | Multi-timezone clocks for your team's cities with a live widget. | Ready to package |
 
 ## How it fits together
@@ -49,10 +50,19 @@ Capture screenshots with the `store-screenshots` skill in `appshell`. An optiona
 
 ## Release an app
 
-1. Bump `version` in `<app-id>/manifest.json` and merge.
-2. Push a tag `<app-id>-v<version>`, for example `quick-notes-v0.1.0`.
+To release an app and publish it to the catalog:
 
-`release-app.yml` packages the folder (without `store/`), publishes a GitHub release and records it in `index.json`. A prerelease version such as `1.2.0-beta.1` goes to the beta channel.
+1. Bump `version` in `<app-id>/manifest.json` and merge to `main`.
+2. Trigger the release workflow via one of:
+   - **GitHub Actions UI / CLI**: Run `gh workflow run release-app -f tag=<app-id>-v<version>` (e.g. `quick-notes-v0.1.0`).
+   - **Push Tag**: Push a single tag `git push origin <app-id>-v<version>` (push tags individually—GitHub skips workflows if >3 tags are pushed at once).
+
+`release-app.yml` packages the folder (without `store/`), publishes a GitHub release, and automatically records the release and SHA-256 in `index.json` on `main`. A prerelease version such as `1.2.0-beta.1` goes to the beta channel.
+
+To test packaging locally without publishing:
+```bash
+./scripts/package-app.sh <app-id>
+```
 
 ## The store
 

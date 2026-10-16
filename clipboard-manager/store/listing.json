@@ -1,16 +1,16 @@
 {
-  "description": "Keep recent snippets, links, and code fragments at your fingertips with local search. Pin common boilerplate texts and paste with instant keyboard shortcuts.",
+  "description": "Store and search clipboard snippets and boilerplate text on your computer. Pin frequently used snippets for quick copying.",
   "categories": [
     "Productivity",
     "Utilities"
   ],
   "icon": "store/icon.svg",
-  "tagline": "Local clipboard history and pinned snippets.",
+  "tagline": "Clipboard history and pinned snippets.",
   "accent": "#10b981",
   "highlights": [
-    "Instant fuzzy search across clipboard history",
-    "Pinned snippets for boilerplate and code",
-    "Strictly encrypted on your local machine"
+    "Save and copy text snippets",
+    "Pin frequently used text",
+    "Stored locally on your computer"
   ],
   "whatsNew": "Initial release."
 }

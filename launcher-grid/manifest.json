@@ -1,0 +1,10 @@
+{
+  "id": "launcher-grid",
+  "version": "0.1.0",
+  "title": "Grid Home",
+  "publisher": "Appshell",
+  "kind": "launcher",
+  "engines": { "appshell": "^0.1" },
+  "entry": { "ui": "ui/index.html" },
+  "capabilities": { "launcher": true }
+}

@@ -8,7 +8,9 @@
       "api.openai.com",
       "api.anthropic.com",
       "generativelanguage.googleapis.com",
-      "api.groq.com"
+      "api.groq.com",
+      "localhost",
+      "127.0.0.1"
     ],
     "secrets": [
       "openai-api-key",

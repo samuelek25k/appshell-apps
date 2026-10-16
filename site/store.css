@@ -133,3 +133,36 @@ dialog[open] {
   cursor: default;
 }
 
+.animated-grid-bg {
+  position: fixed;
+  top: -32px;
+  left: -32px;
+  width: calc(100vw + 64px);
+  height: calc(100vh + 64px);
+  z-index: 0;
+  pointer-events: none;
+  background-size: 32px 32px;
+  background-image: radial-gradient(circle, rgba(100, 116, 139, 0.28) 1.2px, transparent 1.2px);
+  animation: grid-drift 24s linear infinite;
+  will-change: transform;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 25%, #000 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 25%, #000 50%, transparent 100%);
+}
+.dark .animated-grid-bg {
+  background-image: radial-gradient(circle, rgba(99, 102, 241, 0.22) 1.2px, transparent 1.2px);
+}
+@keyframes grid-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(32px, 32px, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animated-grid-bg {
+    animation: none;
+  }
+}
+
+

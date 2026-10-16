@@ -1,0 +1,20 @@
+name: checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/hygiene.mjs
+      - name: Shared scripts match appshell
+        run: |
+          for f in hygiene.mjs rules-guard.mjs; do
+            curl -fsSL "https://raw.githubusercontent.com/samuelek25k/appshell/main/scripts/$f" | cmp - "scripts/$f"
+          done

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(**/AGENTS.md)",
+      "Edit(**/CLAUDE.md)",
+      "Edit(**/.github/**)",
+      "Edit(**/.githooks/**)",
+      "Edit(**/.claude/settings.json)",
+      "Edit(**/scripts/hygiene.mjs)",
+      "Edit(**/scripts/rules-guard.mjs)"
+    ]
+  }
+}

@@ -36,7 +36,7 @@ export const PROVIDERS = {
     id: 'ollama',
     name: 'Local Ollama',
     defaultModel: 'llama3.2',
-    models: ['llama3.2', 'mistral', 'qwen2.5'],
+    models: ['llama3.2', 'llama3.1', 'llama3', 'mistral', 'qwen2.5', 'phi3', 'gemma2'],
     endpoint: 'http://localhost:11434/api/chat',
     requiresKey: false,
   }
@@ -121,20 +121,26 @@ export async function generateCompletion({ providerId, model, apiKey, systemProm
     }
 
     case 'ollama': {
-      const res = await fetch(provider.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          stream: false
-        })
-      });
+      let res;
+      try {
+        res = await fetch(provider.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            stream: false
+          })
+        });
+      } catch (err) {
+        throw new Error(`Cannot connect to Ollama at localhost:11434. Make sure Ollama is running ('ollama serve' or start the Ollama desktop app).`);
+      }
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status} from Ollama. Make sure Ollama is running at localhost:11434`);
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `HTTP ${res.status} from Ollama. Make sure the model "${selectedModel}" is downloaded ('ollama run ${selectedModel}')`);
       }
       const data = await res.json();
       return data.message?.content || '';

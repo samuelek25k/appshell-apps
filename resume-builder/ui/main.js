@@ -440,10 +440,23 @@ async function initLLM() {
   const modelSelect = $('llm-model');
   const apiKeyInput = $('llm-api-key');
 
-  const populateModels = (pId) => {
+  const populateModels = async (pId) => {
     const p = PROVIDERS[pId];
-    modelSelect.innerHTML = p.models.map(m => `<option value="${m}">${m}</option>`).join('');
-    modelSelect.value = p.models.includes(llmSettings.model) ? llmSettings.model : p.defaultModel;
+    let models = [...p.models];
+    if (pId === 'ollama') {
+      try {
+        const res = await fetch('http://localhost:11434/api/tags');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.models) && data.models.length > 0) {
+            const installed = data.models.map((m) => m.name.replace(/:latest$/, ''));
+            models = Array.from(new Set([...installed, ...models]));
+          }
+        }
+      } catch {}
+    }
+    modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+    modelSelect.value = models.includes(llmSettings.model) ? llmSettings.model : (models[0] || p.defaultModel);
     apiKeyInput.disabled = !p.requiresKey;
     apiKeyInput.placeholder = p.requiresKey ? `Enter ${p.name} API Key` : 'Local model (no key required)';
   };

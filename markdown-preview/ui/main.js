@@ -35,40 +35,31 @@ const SAMPLE_MD = `# Appshell Architectural Note
 - [ ] Multi-region sync broker
 `;
 
-// Simple lightweight Markdown Parser (headings, tables, code blocks, lists, quotes)
 function parseMarkdown(md) {
   let html = md
-    // Escape HTML tags
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Code blocks ```
   html = html.replace(/```([a-z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
     return `<pre><code class="language-${lang}">${code.trim()}</code></pre>`;
   });
 
-  // Inline code `code`
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-  // Headers
   html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
   html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
   html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
 
-  // Blockquotes
   html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
 
-  // Checklists & Unordered lists
   html = html.replace(/^- \[x\] (.*$)/gim, '<li><input type="checkbox" checked disabled> $1</li>');
   html = html.replace(/^- \[ \] (.*$)/gim, '<li><input type="checkbox" disabled> $1</li>');
   html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
 
-  // Bold & Italic
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-  // Simple Tables
   const lines = html.split('\n');
   let inTable = false;
   const processed = [];
@@ -82,7 +73,6 @@ function parseMarkdown(md) {
         const cells = line.split('|').slice(1, -1).map(c => `<th>${c.trim()}</th>`).join('');
         processed.push(`<tr>${cells}</tr>`);
       } else if (line.includes('---')) {
-        // Divider row, skip
         continue;
       } else {
         const cells = line.split('|').slice(1, -1).map(c => `<td>${c.trim()}</td>`).join('');
@@ -144,6 +134,5 @@ $('btn-clear').addEventListener('click', () => {
   update();
 });
 
-// Initial sample
 input.value = SAMPLE_MD;
 update();

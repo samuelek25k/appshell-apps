@@ -3,7 +3,6 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
-/* Print Styles for crisp, pagination-controlled PDF output */
 @media print {
   body {
     background: #ffffff !important;
@@ -30,14 +29,12 @@
   }
 }
 
-/* Resume Template Typographic Variants */
 .resume-preview {
   font-family: var(--font-sans);
   color: #1e293b;
   line-height: 1.5;
 }
 
-/* Modern Template */
 .tpl-modern .resume-header {
   border-bottom: 2px solid #0284c7;
   padding-bottom: 12px;
@@ -55,7 +52,6 @@
   margin-bottom: 8px;
 }
 
-/* Minimalist Template */
 .tpl-minimal .resume-header {
   border-bottom: 1px solid #334155;
   padding-bottom: 10px;
@@ -71,7 +67,6 @@
   margin-bottom: 6px;
 }
 
-/* Executive Template */
 .tpl-executive {
   font-family: serif;
 }
@@ -92,7 +87,6 @@
   margin-bottom: 8px;
 }
 
-/* Custom Scrollbars */
 .custom-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;

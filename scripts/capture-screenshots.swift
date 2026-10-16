@@ -27,7 +27,6 @@ class NavDelegate: NSObject, WKNavigationDelegate {
         self.outUrl = outUrl
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // Wait 1.0s for styles, fonts, and scripts to settle
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             let config = WKSnapshotConfiguration()
             config.rect = NSRect(x: 0, y: 0, width: 1200, height: 800)

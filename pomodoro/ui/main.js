@@ -83,7 +83,6 @@ function tick() {
     render();
     sync();
   } else {
-    // Complete session
     clearInterval(timer);
     timer = null;
     state.isRunning = false;
@@ -92,7 +91,6 @@ function tick() {
       state.completedCount += 1;
       state.streak += 1;
       notify('Focus Complete!', 'Great work! Take a well-deserved break.');
-      // Auto switch to short or long break
       state.mode = state.completedCount % 4 === 0 ? 'longBreak' : 'shortBreak';
     } else {
       notify('Break Finished!', 'Ready to resume focus?');
@@ -159,12 +157,10 @@ function notify(title, body) {
   }
 }
 
-// Request notifications
 if ('Notification' in window && Notification.permission === 'default') {
   Notification.requestPermission();
 }
 
-// Event Bindings
 $('btn-toggle').addEventListener('click', toggleTimer);
 $('btn-reset').addEventListener('click', resetTimer);
 $('btn-skip').addEventListener('click', skipSession);

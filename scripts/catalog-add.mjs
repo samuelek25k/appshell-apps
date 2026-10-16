@@ -1,6 +1,3 @@
-// Records one release in index.json, with the app's store listing (<id>/store/listing.json).
-// Inputs come from the environment (see release-app.yml). The host validates the catalog
-// and every package again, so this stays minimal.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const { ID, VERSION, SHA256, COMMIT, URL, REPOSITORY } = process.env;
@@ -12,7 +9,6 @@ Object.assign(entry, { title: manifest.title, publisher: manifest.publisher, rep
 const listingFile = `${ID}/store/listing.json`;
 if (existsSync(listingFile)) {
   const { description, categories, icon, screenshots } = JSON.parse(readFileSync(listingFile, 'utf8'));
-  // Listing paths are relative to the app folder; the catalog's are relative to index.json.
   const local = (p) => (p.startsWith('https://') ? p : `${ID}/${p}`);
   Object.assign(entry, { description, categories, icon: icon && local(icon), screenshots: screenshots?.map(local) });
 }

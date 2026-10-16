@@ -1,10 +1,8 @@
-// Secure credential management using Appshell Secrets SDK with Web Crypto AES-GCM 256-bit fallback.
 export class CredentialVault {
   constructor() {
     this.keyCache = new Map();
   }
 
-  // Obtains or derives an AES-GCM encryption key local to this app instance
   async _getEncryptionKey() {
     let keyMaterial = localStorage.getItem('__rb_vault_m');
     if (!keyMaterial) {
@@ -24,7 +22,6 @@ export class CredentialVault {
     );
   }
 
-  // Encrypts plaintext string returning base64 {iv, cipher}
   async encrypt(plaintext) {
     if (!plaintext) return '';
     const key = await this._getEncryptionKey();
@@ -42,7 +39,6 @@ export class CredentialVault {
     return btoa(JSON.stringify(pack));
   }
 
-  // Decrypts base64 {iv, cipher} string back to plaintext
   async decrypt(encryptedPack) {
     if (!encryptedPack) return '';
     try {
@@ -60,7 +56,6 @@ export class CredentialVault {
     }
   }
 
-  // Store key: tries sdk.secrets first, falls back to AES-GCM encrypted local store
   async setKey(providerId, apiKey, sdk = null) {
     this.keyCache.set(providerId, apiKey);
     if (sdk?.secrets?.set) {
@@ -75,7 +70,6 @@ export class CredentialVault {
     localStorage.setItem(`__rb_sec_${providerId}`, encrypted);
   }
 
-  // Retrieve key: tries sdk.secrets first, falls back to AES-GCM decrypted local store
   async getKey(providerId, sdk = null) {
     if (this.keyCache.has(providerId)) {
       return this.keyCache.get(providerId);
@@ -98,7 +92,6 @@ export class CredentialVault {
     return decrypted;
   }
 
-  // Remove key from all stores
   async clearKey(providerId, sdk = null) {
     this.keyCache.delete(providerId);
     if (sdk?.secrets?.delete) {

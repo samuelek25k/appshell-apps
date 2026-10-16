@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -29,7 +28,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased">
   
-  <!-- Navigation Header (hidden on print) -->
   <header class="no-print sticky top-0 z-30 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -37,21 +35,17 @@
         <span class="font-bold text-sm tracking-tight text-slate-900 dark:text-white">AI Resume Builder</span>
       </div>
 
-      <!-- Actions -->
       <div class="flex items-center gap-2">
-        <!-- Template Picker -->
         <select id="template-select" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium">
           <option value="modern">Template: Modern</option>
           <option value="minimal">Template: Minimalist</option>
           <option value="executive">Template: Executive</option>
         </select>
 
-        <!-- LLM Settings Button -->
         <button type="button" id="btn-open-settings" class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors">
           <span>⚙</span> LLM Settings
         </button>
 
-        <!-- Import / Export Actions -->
         <label class="cursor-pointer inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors">
           Import JSON
           <input type="file" id="input-import-json" accept=".json" class="hidden">
@@ -64,7 +58,6 @@
           Reset Sample
         </button>
 
-        <!-- PDF Export Button -->
         <button type="button" id="btn-print" class="inline-flex items-center gap-1 px-3.5 py-1 text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white transition-colors">
           <span>🖨</span> Print / PDF
         </button>
@@ -72,13 +65,10 @@
     </div>
   </header>
 
-  <!-- Workspace Container: Split Editor & Preview -->
   <div class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 print:p-0 print:block">
     
-    <!-- Left Column: Tabs & Editing Form (hidden on print) -->
     <div class="no-print lg:col-span-5 flex flex-col gap-4">
       
-      <!-- AI Copilot Card -->
       <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -106,10 +96,8 @@
         </div>
       </div>
 
-      <!-- Editor Accordion Sections -->
       <div class="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5 custom-scroll max-h-[calc(100vh-260px)] overflow-y-auto">
         
-        <!-- Personal Info -->
         <section class="space-y-3">
           <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-200 dark:border-slate-800">1. Contact & Identity</h2>
           <div class="grid grid-cols-2 gap-3">
@@ -148,13 +136,11 @@
           </div>
         </section>
 
-        <!-- Summary -->
         <section class="space-y-2">
           <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-200 dark:border-slate-800">2. Professional Summary</h2>
           <textarea id="field-summary" rows="3" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white leading-relaxed"></textarea>
         </section>
 
-        <!-- Experience -->
         <section class="space-y-3">
           <div class="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-800">
             <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">3. Work Experience</h2>
@@ -163,14 +149,12 @@
           <div id="experience-container" class="space-y-3"></div>
         </section>
 
-        <!-- Skills -->
         <section class="space-y-2">
           <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-200 dark:border-slate-800">4. Skills & Technologies</h2>
           <input type="text" id="field-skills" placeholder="TypeScript, Go, Python, React, PostgreSQL..." class="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
           <p class="text-[10px] text-slate-400">Comma-separated list of technical and soft skills.</p>
         </section>
 
-        <!-- Key Projects -->
         <section class="space-y-3">
           <div class="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-800">
             <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">5. Featured Projects</h2>
@@ -179,7 +163,6 @@
           <div id="projects-container" class="space-y-3"></div>
         </section>
 
-        <!-- Education -->
         <section class="space-y-3">
           <div class="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-800">
             <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">6. Education</h2>
@@ -191,7 +174,6 @@
       </div>
     </div>
 
-    <!-- Right Column: Interactive Real-Time Sheet Preview -->
     <div class="lg:col-span-7 flex flex-col items-center">
       <div class="w-full max-w-[800px] border border-slate-200 dark:border-slate-800 bg-white shadow-xl overflow-hidden print-page">
         <div id="resume-sheet"></div>
@@ -200,7 +182,6 @@
 
   </div>
 
-  <!-- LLM Provider & Credentials Modal -->
   <dialog id="modal-llm" class="p-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 max-w-md w-full shadow-2xl backdrop:bg-black/60">
     <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
       <div>

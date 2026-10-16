@@ -26,7 +26,6 @@ form.addEventListener('submit', async (event) => {
   status.textContent = 'Saved';
 });
 
-// The host waits only 600 ms for an answer, so veto once and let a second close discard.
 let warned = false;
 shell.onCloseRequested(() => {
   if (!dirty || warned) return true;

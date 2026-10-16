@@ -1,5 +1,3 @@
-# Tag <app-id>-v<version> to release an app: package it, publish a GitHub release,
-# and record the release in index.json on main.
 name: release-app
 on:
   push:
@@ -38,7 +36,6 @@ jobs:
           manifest_version=$(node -p "require('./$id/manifest.json').version")
           [ "$manifest_version" = "$version" ] || { echo "::error::$id/manifest.json is $manifest_version, tag says $version"; exit 1; }
           file="$id-$version.tgz"
-          # Regular files only (the host refuses links anyway); store listing assets stay out.
           tar --exclude=.git --exclude=./store --owner=0 --group=0 --numeric-owner -czf "$file" -C "$id" .
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "id=$id" >> "$GITHUB_OUTPUT"; echo "version=$version" >> "$GITHUB_OUTPUT"

@@ -85,7 +85,6 @@ function generateTypeScript() {
   }
 }
 
-// Event Bindings
 input.addEventListener('input', () => processJson(2));
 $('btn-format').addEventListener('click', () => processJson(2));
 $('btn-minify').addEventListener('click', () => processJson(0));
@@ -108,6 +107,5 @@ $('btn-copy').addEventListener('click', () => {
   }
 });
 
-// Load sample on initial blank launch
 input.value = JSON.stringify(SAMPLE_JSON, null, 2);
 processJson(2);

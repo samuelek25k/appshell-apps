@@ -4,7 +4,7 @@ const CITIES = {
   'Europe/London': 'London', 'America/New_York': 'New York', 'Asia/Tokyo': 'Tokyo',
   'Asia/Singapore': 'Singapore', 'Europe/Paris': 'Paris', 'America/Los_Angeles': 'Los Angeles',
   'Australia/Sydney': 'Sydney', 'Africa/Johannesburg': 'Johannesburg', 'Asia/Hong_Kong': 'Hong Kong',
-  'Europe/Frankfurt': 'Frankfurt', 'Asia/Dubai': 'Dubai', 'Asia/Kolkata': 'Kolkata',
+  'Europe/Berlin': 'Berlin', 'Asia/Dubai': 'Dubai', 'Asia/Kolkata': 'Kolkata',
 };
 const home = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const defaultZones = ['Europe/London', 'America/New_York', 'Asia/Tokyo'];

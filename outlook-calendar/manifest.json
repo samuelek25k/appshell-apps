@@ -1,7 +1,7 @@
 {
   "id": "outlook-calendar",
   "version": "0.1.0",
-  "title": "Outlook Today",
+  "title": "Outlook & Daily Agenda",
   "publisher": "Appshell",
   "capabilities": {
     "network": []

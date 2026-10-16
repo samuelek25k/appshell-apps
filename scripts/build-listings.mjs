@@ -1,6 +1,3 @@
-// Writes apps.json: a store listing for every app folder in the repository, released or not.
-// The store merges it with index.json, which stays the source of truth for releases.
-// Usage: node scripts/build-listings.mjs <out-file> <repository-url>
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const [out = 'apps.json', repository = ''] = process.argv.slice(2);

@@ -1,0 +1,17 @@
+name: checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  apps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-apps.mjs --online
+      - name: rules-guard matches appshell
+        run: curl -fsSL https://raw.githubusercontent.com/samuelek25k/appshell/main/scripts/rules-guard.mjs | cmp - scripts/rules-guard.mjs

@@ -4,7 +4,6 @@ import { generateCompletion, PROVIDERS } from './llm.js';
 let sdk = null;
 try { sdk = await import('/__appshell/sdk.js'); } catch {}
 
-// Default initial state
 const DEFAULT_DATA = {
   template: 'modern',
   personal: {
@@ -61,12 +60,10 @@ const DEFAULT_DATA = {
   ]
 };
 
-// Global active resume state
 let resume = (sdk ? await sdk.storage?.get('active_resume') : null) ||
              JSON.parse(localStorage.getItem('__rb_resume_data') || 'null') ||
              DEFAULT_DATA;
 
-// LLM settings
 let llmSettings = JSON.parse(localStorage.getItem('__rb_llm_settings') || 'null') || {
   provider: 'gemini',
   model: 'gemini-1.5-flash'
@@ -92,7 +89,6 @@ async function persist() {
   }
 }
 
-// Render dynamic forms & fields
 function initEditor() {
   $('field-name').value = resume.personal.name || '';
   $('field-title').value = resume.personal.title || '';
@@ -178,7 +174,6 @@ function renderProjectFields() {
   });
 }
 
-// Render the print/live preview sheet
 function renderPreview() {
   const sheet = $('resume-sheet');
   const tplClass = `tpl-${resume.template || 'modern'}`;
@@ -281,7 +276,6 @@ function renderPreview() {
   `;
 }
 
-// Bind Form Inputs to State
 function bindEvents() {
   const syncPersonal = () => {
     resume.personal = {
@@ -313,7 +307,6 @@ function bindEvents() {
     persist();
   });
 
-  // Dynamic experience events
   $('experience-container').addEventListener('input', (e) => {
     const idx = Number(e.target.dataset.idx);
     if (isNaN(idx) || !resume.experience[idx]) return;
@@ -345,7 +338,6 @@ function bindEvents() {
     persist();
   });
 
-  // Dynamic education events
   $('education-container').addEventListener('input', (e) => {
     const idx = Number(e.target.dataset.idx);
     if (isNaN(idx) || !resume.education[idx]) return;
@@ -373,7 +365,6 @@ function bindEvents() {
     persist();
   });
 
-  // Dynamic project events
   $('projects-container').addEventListener('input', (e) => {
     const idx = Number(e.target.dataset.idx);
     if (isNaN(idx) || !resume.projects[idx]) return;
@@ -402,17 +393,14 @@ function bindEvents() {
     persist();
   });
 
-  // Template switch
   $('template-select').addEventListener('change', (e) => {
     resume.template = e.target.value;
     renderPreview();
     persist();
   });
 
-  // Print PDF
   $('btn-print').addEventListener('click', () => window.print());
 
-  // Export JSON
   $('btn-export-json').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(resume, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -423,7 +411,6 @@ function bindEvents() {
     URL.revokeObjectURL(url);
   });
 
-  // Import JSON
   $('input-import-json').addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -438,7 +425,6 @@ function bindEvents() {
     }
   });
 
-  // Reset to sample
   $('btn-sample').addEventListener('click', () => {
     if (confirm('Load sample developer resume? This replaces current unsaved data.')) {
       resume = JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -449,7 +435,6 @@ function bindEvents() {
   });
 }
 
-// AI Integration & Settings Dialog
 async function initLLM() {
   const providerSelect = $('llm-provider');
   const modelSelect = $('llm-model');
@@ -466,7 +451,6 @@ async function initLLM() {
   providerSelect.value = llmSettings.provider;
   populateModels(llmSettings.provider);
 
-  // Load current API key securely
   const currentKey = await vault.getKey(llmSettings.provider, sdk);
   apiKeyInput.value = currentKey || '';
 
@@ -485,7 +469,6 @@ async function initLLM() {
     localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
   });
 
-  // Save Settings Modal
   $('btn-save-llm').addEventListener('click', async () => {
     const pId = providerSelect.value;
     const key = apiKeyInput.value.trim();
@@ -501,7 +484,6 @@ async function initLLM() {
     showAiStatus(`Configured ${PROVIDERS[pId].name} (${llmSettings.model})`);
   });
 
-  // AI Actions Trigger
   $('btn-ai-tailor').addEventListener('click', async () => {
     const jd = $('ai-job-desc').value.trim();
     if (!jd) {
@@ -588,11 +570,9 @@ function showAiStatus(msg) {
   }
 }
 
-// Settings modal openers
 $('btn-open-settings').addEventListener('click', () => $('modal-llm').showModal());
 $('btn-close-llm').addEventListener('click', () => $('modal-llm').close());
 
-// Initialize
 initEditor();
 renderPreview();
 bindEvents();

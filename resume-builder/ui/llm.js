@@ -1,5 +1,3 @@
-// Multi-LLM provider completion client for Resume Builder.
-// Supports OpenAI, Anthropic Claude, Google Gemini, Groq, and local Ollama.
 
 export const PROVIDERS = {
   openai: {

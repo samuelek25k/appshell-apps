@@ -1,0 +1,7 @@
+AGENTS.md
+CLAUDE.md
+.github/
+.githooks/
+.claude/settings.json
+scripts/check-apps.mjs
+scripts/rules-guard.mjs

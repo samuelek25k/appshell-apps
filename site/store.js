@@ -1,7 +1,5 @@
-// Static app store client: renders catalog releases (index.json) merged with repository listings (apps.json).
 
 /**
- * How an Install button reaches a product. One per `install.type` in config.json.
  * @type {Record<string, (app: any, config: any) => void>}
  */
 const installers = {
@@ -20,7 +18,6 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
-/** Newest release by semver; prereleases sort before their release. */
 function latest(app, channel = 'stable') {
   const parse = (/** @type {string} */ v) => { const [core, pre = ''] = v.split('-', 2); return [...core.split('.').map(Number), pre]; };
   const cmp = (a, b) => {
@@ -54,7 +51,6 @@ const category = (app) => (app.categories ?? [])[0] ?? 'Utilities';
 const appLink = (app) => `#/app/${encodeURIComponent(app.id)}`;
 const status = (app) => (released(app) ? `v${latest(app).version}` : app.included ? 'Included' : 'Coming soon');
 
-/** Short state badge for tiles with sharp edges */
 const badge = (app) => {
   if (released(app)) {
     return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30' }, ['Get']);
@@ -65,7 +61,6 @@ const badge = (app) => {
   return el('span', { class: 'inline-flex items-center px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30' }, ['Soon']);
 };
 
-/** Merges catalog releases with repository listings; paths become absolute URLs (supporting jsDelivr CDN). */
 function merge(catalog, catalogBase, listings, cdnBase = '') {
   const abs = (/** @type {string} */ base) => (/** @type {string | undefined} */ p) => {
     if (!p) return undefined;
@@ -94,9 +89,6 @@ function merge(catalog, catalogBase, listings, cdnBase = '') {
   return [...byId.values()].sort((a, b) => Number(released(b)) - Number(released(a)) || a.title.localeCompare(b.title));
 }
 
-// ---- Home Components --------------------------------------------------------
-
-/** A screenshot in a desktop window frame */
 const framed = (src, alt = '') => el('div', { class: 'window shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden' }, [
   el('div', { class: 'window-bar', 'aria-hidden': 'true' }, [el('span'), el('span'), el('span')]),
   el('img', { src, alt, loading: 'lazy' }),
@@ -128,7 +120,6 @@ function scroller(track, label) {
   return { track, controls };
 }
 
-/** Featured apps: true full-width clean banner slider without heavy gradients or shadows */
 function spotlight(apps) {
   const order = state.config.featured ?? [];
   const rank = (a) => (order.includes(a.id) ? order.indexOf(a.id) : order.length);
@@ -183,7 +174,6 @@ function spotlight(apps) {
   ]);
 }
 
-/** Unified Marketplace Card (used for all shelves and search results) */
 const tile = (app) => el('a', {
   class: 'group flex flex-col justify-between p-4 sm:p-5 bg-white dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-600 shadow-sm hover:shadow-md transition-all no-underline text-inherit',
   href: appLink(app)
@@ -260,7 +250,6 @@ function renderHome() {
   ];
 }
 
-// Search and List view: uses exact same card grid (`tile`) as the main store
 function renderList(title, apps, current) {
   return [
     el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6' }, [
@@ -286,8 +275,6 @@ function matches(app, q) {
   return [app.title, app.publisher, app.tagline ?? '', app.description ?? '', ...(app.categories ?? [])]
     .some((t) => t.toLowerCase().includes(q));
 }
-
-// ---- App Page Details -------------------------------------------------------
 
 function facts(app) {
   const release = latest(app);
@@ -413,7 +400,6 @@ function renderApp(id) {
     el('div', { class: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6' }, [
       el('a', { class: 'inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 mb-6 hover:underline', href: '#/' }, ['← Back to store']),
       
-      // App Header Bar with sharp edges
       accent(app, el('div', { class: 'p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6' }, [
         el('div', { class: 'flex items-center gap-5' }, [
           icon(app, 'large'),
@@ -434,7 +420,6 @@ function renderApp(id) {
       facts(app),
       gallery(app),
 
-      // Content Grid: About + Technical Provenance
       el('div', { class: 'grid grid-cols-1 lg:grid-cols-12 gap-8 my-8' }, [
         el('div', { class: 'lg:col-span-8 space-y-8' }, [
           el('section', {}, [
@@ -463,8 +448,6 @@ function renderApp(id) {
     ])
   ];
 }
-
-// ---- Dialogs & Lightbox -----------------------------------------------------
 
 let pending = 0;
 function openInstall(app, release) {
@@ -515,8 +498,6 @@ function stepShot(delta) {
   }
 }
 
-// ---- Theme Switcher (Dark/Light) -------------------------------------------
-
 function setupTheme() {
   const themeToggle = $('theme-toggle');
   const lightIcon = $('theme-toggle-light-icon');
@@ -545,8 +526,6 @@ function setupTheme() {
     applyTheme(isDark ? 'light' : 'dark');
   });
 }
-
-// ---- Routing & Initialization ----------------------------------------------
 
 function route() {
   const [, kind, arg] = /^#\/(app|category)\/(.+)$/.exec(location.hash) ?? [];
@@ -609,11 +588,9 @@ async function start() {
     });
   }
 
-  // Performance SWR Cache: instant display from sessionStorage, revalidate in background
   const fetchWithTimeout = (targetUrl, ms = 3000) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), ms);
-    // Use cache: 'no-cache' to ensure Conditional GET (ETag / If-Modified-Since) validates fresh changes
     return fetch(targetUrl, { signal: controller.signal, cache: 'no-cache' })
       .then((r) => { clearTimeout(timeout); return r.ok ? r.json() : null; })
       .catch(() => { clearTimeout(timeout); return null; });
@@ -640,7 +617,6 @@ async function start() {
     } catch {}
   }
 
-  // If no cache, wait synchronously for initial load
   if (!catalogData.apps && !listingsData.apps) {
     const [c, l] = await Promise.all([
       loadData(catalogUrl, localCatalogUrl),
@@ -653,7 +629,6 @@ async function start() {
       sessionStorage.setItem('appshell_cache_listings', JSON.stringify(listingsData));
     } catch {}
   } else {
-    // If cache exists, revalidate in background immediately; if changed, live re-render UI
     Promise.all([
       loadData(catalogUrl, localCatalogUrl),
       loadData(listingsUrl, 'apps.json')

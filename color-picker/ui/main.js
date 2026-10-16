@@ -89,13 +89,11 @@ function updateColor(hex) {
   $('val-rgb').value = `rgb(${r}, ${g}, ${b})`;
   $('val-hsl').value = `hsl(${h}, ${s}%, ${l}%)`;
 
-  // Contrast against White
   const contrastWhite = getContrast(hex, '#ffffff');
   $('ratio-white').textContent = `${contrastWhite}:1`;
   $('status-white').textContent = contrastWhite >= 4.5 ? 'Pass (WCAG AA)' : contrastWhite >= 3.0 ? 'Pass (Large only)' : 'Fail';
   $('status-white').style.color = contrastWhite >= 4.5 ? '#10b981' : contrastWhite >= 3.0 ? '#f59e0b' : '#ef4444';
 
-  // Contrast against Black
   const contrastBlack = getContrast(hex, '#090d16');
   $('ratio-black').textContent = `${contrastBlack}:1`;
   $('status-black').textContent = contrastBlack >= 4.5 ? 'Pass (WCAG AA)' : contrastBlack >= 3.0 ? 'Pass (Large only)' : 'Fail';
@@ -129,7 +127,6 @@ $('btn-save-swatch').addEventListener('click', () => {
   }
 });
 
-// Eyedropper API if supported by platform/browser
 $('btn-eyedropper').addEventListener('click', async () => {
   if ('EyeDropper' in window) {
     try {
@@ -144,7 +141,6 @@ $('btn-eyedropper').addEventListener('click', async () => {
   }
 });
 
-// Copy buttons
 document.querySelectorAll('.btn-copy').forEach((btn) => {
   btn.addEventListener('click', () => {
     const target = $(btn.dataset.target);

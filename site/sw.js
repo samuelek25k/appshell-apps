@@ -1,4 +1,3 @@
-// Offline PWA service worker with Stale-While-Revalidate caching for Appshell Store
 const CACHE_NAME = 'appshell-store-v2';
 const STATIC_ASSETS = [
   './',
@@ -28,13 +27,11 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Always fetch dynamic catalog/listings from network/CDN so data changes are detected immediately
   const isDynamicData = url.pathname.endsWith('index.json') ||
                         url.pathname.endsWith('apps.json') ||
                         url.pathname.endsWith('config.json');
   if (isDynamicData) return;
 
-  // Cache same-origin assets and CDN assets (jsdelivr, fonts)
   const isCachable = url.origin === self.location.origin ||
                      url.hostname === 'cdn.jsdelivr.net' ||
                      url.hostname === 'fonts.googleapis.com' ||
@@ -42,7 +39,6 @@ self.addEventListener('fetch', (event) => {
 
   if (!isCachable) return;
 
-  // Stale-While-Revalidate: Return cached response immediately while revalidating in background
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cached = await cache.match(event.request);

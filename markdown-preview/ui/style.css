@@ -138,7 +138,6 @@ body { margin: 0; background: var(--bg); color: var(--ink); height: 100vh; overf
   padding: 24px 32px;
 }
 
-/* Custom Markdown Content Rendering */
 .custom-markdown {
   line-height: 1.65;
   color: var(--ink);

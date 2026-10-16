@@ -1,5 +1,3 @@
-# Publishes the store (site/ + index.json + app store assets) to GitHub Pages.
-# Needs Settings > Pages > Source: GitHub Actions.
 name: pages
 on:
   push:

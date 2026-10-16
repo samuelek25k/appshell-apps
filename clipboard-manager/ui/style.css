@@ -1,0 +1,23 @@
+:root {
+  --bg: #f8fafc; --panel: #ffffff; --ink: #0f172a; --quiet: #64748b; --line: #e2e8f0; --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.2);
+  color-scheme: light dark; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #090d16; --panel: #0f172a; --ink: #f8fafc; --quiet: #94a3b8; --line: #1e293b; --accent: #34d399; --accent-glow: rgba(52, 211, 153, 0.25); }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); }
+main { max-width: 680px; margin: 0 auto; padding: 36px 20px; }
+h1 { margin: 0 0 16px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.add-box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 24px; box-shadow: 0 4px 16px -2px rgba(0,0,0,0.06); }
+.input-row { display: flex; gap: 10px; }
+input { flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; outline: none; }
+input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+button.primary { padding: 10px 20px; border: 0; border-radius: 9999px; background: var(--accent); color: #002917; font: inherit; font-weight: 700; cursor: pointer; }
+button.primary:hover { opacity: 0.92; }
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.clip-text { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-copy { padding: 6px 14px; border: 1px solid var(--line); border-radius: 9999px; background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-copy:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+.empty { color: var(--quiet); text-align: center; padding: 32px; }

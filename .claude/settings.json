@@ -6,7 +6,7 @@
       "Edit(**/.github/**)",
       "Edit(**/.githooks/**)",
       "Edit(**/.claude/settings.json)",
-      "Edit(**/scripts/hygiene.mjs)",
+      "Edit(**/scripts/check-apps.mjs)",
       "Edit(**/scripts/rules-guard.mjs)"
     ]
   }

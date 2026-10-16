@@ -1,2 +1,2 @@
 #!/bin/sh
-node scripts/hygiene.mjs --commit-msg "$1"
+node scripts/check-apps.mjs --commit-msg "$1"

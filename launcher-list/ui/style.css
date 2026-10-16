@@ -1,0 +1,65 @@
+:root {
+  --bg: #fbfaf7;
+  --panel: #ffffff;
+  --ink: #1b1a17;
+  --quiet: #6f6b62;
+  --line: #e7e3d9;
+  --accent: #b4552d;
+  color-scheme: light dark;
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root[data-mode="dark"] {
+  --bg: #161512;
+  --panel: #1f1e1a;
+  --ink: #f3f0e8;
+  --quiet: #a39e92;
+  --line: #2f2d27;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); }
+main { max-width: 620px; margin: 0 auto; padding: 56px 20px 40px; display: flex; flex-direction: column; gap: 20px; }
+.quiet { color: var(--quiet); margin: 0; }
+
+#query {
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: inherit;
+  font: inherit;
+  font-size: 18px;
+}
+#query:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+#results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.result[aria-selected="true"] { background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: transparent; flex: none; }
+.dot[data-running="true"] { background: var(--accent); }
+.title { flex: 1; }
+
+.widgets { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.widgets:empty { display: none; }
+.summary { display: flex; justify-content: space-between; gap: 12px; padding: 4px 12px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.summary:focus-visible, .result:focus-visible, .swatch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+footer { display: flex; justify-content: flex-end; }
+.swatches { display: flex; gap: 8px; }
+.swatch { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.swatch[aria-pressed="true"] { border-color: var(--ink); }

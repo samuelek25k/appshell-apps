@@ -34,7 +34,8 @@ The desktop app reads `index.json`. It installs a release only if the source is 
 
 1. From an `appshell` checkout next to this one: `pnpm appshell create ../appshell-apps/<app-id> --id <app-id>`.
 2. Run it: `pnpm appshell dev ../appshell-apps/<app-id>`.
-3. Add a store listing (below). The app shows in the store as **Coming soon** once it merges.
+3. Apps run under a strict CSP: no inline scripts or handlers and no remote assets. An app styled with Tailwind ships compiled CSS: `scripts/build-tailwind.sh <app-id>` writes `ui/tailwind.css`.
+4. Add a store listing (below). The app shows in the store as **Coming soon** once it merges.
 
 ## Store listing
 

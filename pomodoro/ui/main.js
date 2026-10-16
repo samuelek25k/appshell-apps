@@ -151,7 +151,7 @@ function skipSession() {
 
 function notify(title, body) {
   if (sdk?.notifications?.show) {
-    sdk.notifications.show({ title, body });
+    sdk.notifications.show(title, body);
   } else if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(title, { body });
   }

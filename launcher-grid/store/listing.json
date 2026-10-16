@@ -1,0 +1,9 @@
+{
+  "description": "A home screen of app icons with your widgets on top. Pick an accent colour and a light or dark theme right on the page; the whole window follows. Running apps get a dot, and the grid updates as you install or remove apps.",
+  "categories": ["Launchers"],
+  "icon": "store/icon.svg",
+  "tagline": "Your apps as a tidy icon grid.",
+  "accent": "#2f6fed",
+  "highlights": ["Icon grid with running dots", "Widgets on the home screen", "Accent colour and theme"],
+  "whatsNew": "Initial release."
+}

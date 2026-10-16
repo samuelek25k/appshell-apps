@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Search Home</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main>
+    <input id="query" type="search" placeholder="Search apps" autocomplete="off" spellcheck="false" aria-label="Search apps">
+    <ul id="results" role="listbox" aria-label="Apps"></ul>
+    <p id="empty" class="quiet" hidden>Nothing matches.</p>
+    <section id="widgets" class="widgets" aria-label="Widgets"></section>
+    <footer>
+      <div id="accents" class="swatches" role="group" aria-label="Accent colour"></div>
+    </footer>
+  </main>
+</body>
+</html>

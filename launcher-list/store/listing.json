@@ -1,0 +1,9 @@
+{
+  "description": "A home screen that starts with a search box. Type to filter your apps, use the arrow keys and Enter to open one, and see your widgets as one-line summaries underneath. Running apps are listed first and marked with a dot.",
+  "categories": ["Launchers"],
+  "icon": "store/icon.svg",
+  "tagline": "Type, press Enter, you are there.",
+  "accent": "#b4552d",
+  "highlights": ["Keyboard-first search", "Running apps first", "Widget summaries"],
+  "whatsNew": "Initial release."
+}

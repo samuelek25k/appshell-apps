@@ -10,7 +10,8 @@
   },
   "cdn": {
     "enabled": true,
-    "provider": "jsdelivr",
+    "provider": "cloudflare",
+    "url": "https://appshell-apps.pages.dev",
     "repository": "samuelek25k/appshell-apps",
     "branch": "main"
   },

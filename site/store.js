@@ -560,7 +560,11 @@ async function start() {
 
   state.config = await (await fetch('config.json')).json();
   const cdn = state.config.cdn?.enabled && state.config.cdn;
-  const cdnBase = cdn ? `https://cdn.jsdelivr.net/gh/${cdn.repository}@${cdn.branch}/` : '';
+  const cdnBase = cdn
+    ? (cdn.provider === 'cloudflare' && cdn.url
+        ? (cdn.url.endsWith('/') ? cdn.url : `${cdn.url}/`)
+        : `https://cdn.jsdelivr.net/gh/${cdn.repository}@${cdn.branch}/`)
+    : '';
   const localCatalogUrl = new URL(state.config.catalog, location.href).href;
   const catalogUrl = cdnBase ? `${cdnBase}${state.config.catalog}` : localCatalogUrl;
   const listingsUrl = cdnBase ? `${cdnBase}apps.json` : 'apps.json';

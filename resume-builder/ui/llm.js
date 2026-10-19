@@ -39,6 +39,14 @@ export const PROVIDERS = {
     models: ['llama3.2', 'llama3.1', 'llama3', 'mistral', 'qwen2.5', 'phi3', 'gemma2'],
     endpoint: 'http://localhost:11434/api/chat',
     requiresKey: false,
+  },
+  custom: {
+    id: 'custom',
+    name: 'Custom AI Provider / Gateway',
+    defaultModel: 'llama3.3',
+    models: ['llama3.3', 'llama3.2', 'mistral', 'qwen2.5', 'deepseek-chat', 'gpt-4o', 'gpt-4o-mini'],
+    endpoint: 'http://localhost:11434/v1/chat/completions',
+    requiresKey: false,
   }
 };
 
@@ -48,7 +56,28 @@ export function ollamaBase(value) {
   return (value || DEFAULT_OLLAMA).trim().replace(/\/+$/, '');
 }
 
-export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt, endpoint }) {
+export function resolveCustomEndpoint(rawEndpoint) {
+  let urlStr = (rawEndpoint || '').trim();
+  if (!urlStr) {
+    urlStr = 'http://localhost:11434/v1/chat/completions';
+  }
+  if (!/^https?:\/\//i.test(urlStr)) {
+    urlStr = `http://${urlStr}`;
+  }
+  try {
+    const u = new URL(urlStr);
+    if (!u.pathname || u.pathname === '/') {
+      u.pathname = '/v1/chat/completions';
+    } else if (!u.pathname.endsWith('/chat/completions') && !u.pathname.endsWith('/chat')) {
+      u.pathname = u.pathname.replace(/\/+$/, '') + '/chat/completions';
+    }
+    return u.toString();
+  } catch {
+    return urlStr;
+  }
+}
+
+export async function generateCompletion({ providerId, model, apiKey, systemPrompt, userPrompt, endpoint, customEndpoint, sdk }) {
   const provider = PROVIDERS[providerId];
   if (!provider) throw new Error(`Unknown provider: ${providerId}`);
   if (provider.requiresKey && !apiKey?.trim()) {
@@ -150,6 +179,67 @@ export async function generateCompletion({ providerId, model, apiKey, systemProm
       }
       const data = await res.json();
       return data.message?.content || '';
+    }
+
+    case 'custom': {
+      const targetUrl = resolveCustomEndpoint(customEndpoint || provider.endpoint);
+      if (sdk?.network?.requestEndpoint) {
+        try {
+          await sdk.network.requestEndpoint(targetUrl);
+        } catch (err) {
+          console.warn('Network endpoint request warning:', err);
+        }
+      }
+
+      const isOllamaChat = targetUrl.endsWith('/api/chat');
+      const headers = { 'Content-Type': 'application/json' };
+      if (apiKey?.trim()) {
+        headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+      }
+
+      const bodyPayload = isOllamaChat
+        ? {
+            model: selectedModel,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            stream: false
+          }
+        : {
+            model: selectedModel,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            temperature: 0.4
+          };
+
+      let res;
+      try {
+        res = await fetch(targetUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(bodyPayload)
+        });
+      } catch (err) {
+        throw new Error(`Failed to connect to ${targetUrl}: ${err.message}. Verify that the server or gateway is running and accessible.`);
+      }
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const errMsg = errJson.error?.message || errJson.error || errJson.message || `HTTP ${res.status} from ${targetUrl}`;
+        throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
+      }
+
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content ??
+                      data.message?.content ??
+                      data.candidates?.[0]?.content?.parts?.[0]?.text ??
+                      (typeof data.response === 'string' ? data.response : '');
+
+      if (!content && typeof data === 'string') return data;
+      return content || '';
     }
 
     default:

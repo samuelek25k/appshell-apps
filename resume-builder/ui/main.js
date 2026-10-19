@@ -66,7 +66,9 @@ let resume = (sdk ? await sdk.storage?.get('active_resume') : null) ||
 
 let llmSettings = JSON.parse(localStorage.getItem('__rb_llm_settings') || 'null') || {
   provider: 'gemini',
-  model: 'gemini-1.5-flash'
+  model: 'gemini-1.5-flash',
+  customEndpoint: '',
+  customModel: ''
 };
 llmSettings.endpoint ??= '';
 
@@ -439,10 +441,35 @@ function bindEvents() {
 async function initLLM() {
   const providerSelect = $('llm-provider');
   const modelSelect = $('llm-model');
+  const customModelInput = $('llm-custom-model');
+  const customEndpointGroup = $('field-custom-endpoint');
+  const customEndpointInput = $('llm-custom-endpoint');
   const apiKeyInput = $('llm-api-key');
+  const apiKeyHint = $('llm-api-key-hint');
 
   const populateModels = async (pId) => {
     const p = PROVIDERS[pId];
+    if (pId === 'custom') {
+      customEndpointGroup.classList.remove('hidden');
+      customModelInput.classList.remove('hidden');
+      modelSelect.classList.add('hidden');
+      customEndpointInput.value = llmSettings.customEndpoint || 'http://localhost:11434/v1/chat/completions';
+      customModelInput.value = llmSettings.customModel || llmSettings.model || 'llama3.3';
+      apiKeyInput.disabled = false;
+      apiKeyInput.placeholder = 'Optional for local / API Key for gateway';
+      if (apiKeyHint) {
+        apiKeyHint.textContent = 'Optional for local Ollama / models; required if your custom gateway or proxy authenticates with an API key.';
+      }
+      return;
+    }
+
+    customEndpointGroup.classList.add('hidden');
+    customModelInput.classList.add('hidden');
+    modelSelect.classList.remove('hidden');
+    if (apiKeyHint) {
+      apiKeyHint.textContent = 'Your key is encrypted on your local machine and never sent anywhere except directly to the selected provider endpoint.';
+    }
+
     let models = [...p.models];
     if (pId === 'ollama') {
       try {
@@ -491,24 +518,41 @@ async function initLLM() {
   providerSelect.value = llmSettings.provider;
   endpointInput.value = llmSettings.endpoint;
   showEndpoint(llmSettings.provider);
-  populateModels(llmSettings.provider);
+  await populateModels(llmSettings.provider);
 
   const currentKey = await vault.getKey(llmSettings.provider, sdk);
   apiKeyInput.value = currentKey || '';
 
   providerSelect.addEventListener('change', async () => {
     const pId = providerSelect.value;
-    populateModels(pId);
     showEndpoint(pId);
+    await populateModels(pId);
     const key = await vault.getKey(pId, sdk);
     apiKeyInput.value = key || '';
     llmSettings.provider = pId;
-    llmSettings.model = modelSelect.value;
+    if (pId === 'custom') {
+      llmSettings.customEndpoint = customEndpointInput.value.trim() || 'http://localhost:11434/v1/chat/completions';
+      llmSettings.customModel = customModelInput.value.trim() || 'llama3.3';
+      llmSettings.model = llmSettings.customModel;
+    } else {
+      llmSettings.model = modelSelect.value;
+    }
     localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
   });
 
   modelSelect.addEventListener('change', () => {
     llmSettings.model = modelSelect.value;
+    localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
+  });
+
+  customModelInput.addEventListener('input', () => {
+    llmSettings.customModel = customModelInput.value.trim();
+    llmSettings.model = llmSettings.customModel || 'llama3.3';
+    localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
+  });
+
+  customEndpointInput.addEventListener('input', () => {
+    llmSettings.customEndpoint = customEndpointInput.value.trim();
     localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
   });
 
@@ -521,7 +565,6 @@ async function initLLM() {
       await vault.clearKey(pId, sdk);
     }
     llmSettings.provider = pId;
-    llmSettings.model = modelSelect.value;
     if (pId === 'ollama') {
       try {
         llmSettings.endpoint = await allowEndpoint();
@@ -529,6 +572,20 @@ async function initLLM() {
         endpointStatus.textContent = error.message;
         return;
       }
+      llmSettings.model = modelSelect.value;
+    } else if (pId === 'custom') {
+      llmSettings.customEndpoint = customEndpointInput.value.trim() || 'http://localhost:11434/v1/chat/completions';
+      llmSettings.customModel = customModelInput.value.trim() || 'llama3.3';
+      llmSettings.model = llmSettings.customModel;
+      if (sdk?.network?.requestEndpoint) {
+        try {
+          await sdk.network.requestEndpoint(llmSettings.customEndpoint);
+        } catch (e) {
+          console.warn('sdk.network.requestEndpoint warning:', e);
+        }
+      }
+    } else {
+      llmSettings.model = modelSelect.value;
     }
     localStorage.setItem('__rb_llm_settings', JSON.stringify(llmSettings));
     $('modal-llm').close();
@@ -548,6 +605,8 @@ async function initLLM() {
         endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
+        customEndpoint: llmSettings.customEndpoint,
+        sdk,
         systemPrompt: 'You are an elite executive career coach and ATS optimization specialist. Output ONLY pure valid JSON without markdown fences.',
         userPrompt: prompt
       });
@@ -568,6 +627,8 @@ async function initLLM() {
         endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
+        customEndpoint: llmSettings.customEndpoint,
+        sdk,
         systemPrompt: 'You are an expert resume editor. Output ONLY a pure valid JSON array of experience objects without markdown fences.',
         userPrompt: prompt
       });
@@ -587,6 +648,8 @@ async function initLLM() {
         endpoint: llmSettings.endpoint,
         model: llmSettings.model,
         apiKey: key,
+        customEndpoint: llmSettings.customEndpoint,
+        sdk,
         systemPrompt: 'You are a professional resume consultant. Return only the summary paragraph.',
         userPrompt: prompt
       });

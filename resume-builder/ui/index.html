@@ -182,12 +182,20 @@
           <option value="anthropic">Anthropic Claude</option>
           <option value="groq">Groq (Llama)</option>
           <option value="ollama">Ollama (this computer or your network)</option>
+          <option value="custom">Custom AI Provider / Gateway</option>
         </select>
+      </div>
+
+      <div id="field-custom-endpoint" class="hidden">
+        <label class="block text-xs font-semibold mb-1">Custom Endpoint / Base URL</label>
+        <input type="text" id="llm-custom-endpoint" placeholder="e.g. http://localhost:11434/v1/chat/completions or https://gateway.ai.cloudflare.com/v1/..." class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono">
+        <p class="text-[11px] text-slate-500 mt-1">Accepts OpenAI-compatible gateways (LiteLLM, Cloudflare AI Gateway, Portkey, OpenRouter) or Ollama endpoints.</p>
       </div>
 
       <div>
         <label class="block text-xs font-semibold mb-1">Model</label>
         <select id="llm-model" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono"></select>
+        <input type="text" id="llm-custom-model" placeholder="e.g. llama3.3, mistral-large, deepseek-chat" class="hidden w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono">
       </div>
 
       <div id="endpoint-row" hidden>
@@ -206,7 +214,7 @@
           <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">🔒 Encrypted locally</span>
         </div>
         <input type="password" id="llm-api-key" placeholder="Enter API Key" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono">
-        <p class="text-[11px] text-slate-500 mt-1">Your key is encrypted on your local machine and never sent anywhere except directly to the selected provider endpoint.</p>
+        <p id="llm-api-key-hint" class="text-[11px] text-slate-500 mt-1">Your key is encrypted on your local machine and never sent anywhere except directly to the selected provider endpoint.</p>
       </div>
 
       <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">

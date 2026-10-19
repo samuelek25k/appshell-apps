@@ -31,6 +31,26 @@
       "screenshots": [
         "resume-builder/store/screenshot-1.png"
       ]
+    },
+    {
+      "id": "launcher-grid",
+      "title": "Grid Home",
+      "publisher": "Appshell",
+      "repository": "https://github.com/samuelek25k/appshell-apps",
+      "releases": [
+        {
+          "version": "0.1.0",
+          "channel": "stable",
+          "url": "https://github.com/samuelek25k/appshell-apps/releases/download/launcher-grid-v0.1.0/launcher-grid-0.1.0.tgz",
+          "sha256": "c47ab502df4ac57e9bfd693c9e60586d405c9e3af835f3b988b00793f86bd166",
+          "commit": "a307cafc03f8fca00ea64cc018e200c185e019c5"
+        }
+      ],
+      "description": "A home screen of app icons with your widgets on top. Pick an accent colour and a light or dark theme right on the page; the whole window follows. Running apps get a dot, and the grid updates as you install or remove apps.",
+      "categories": [
+        "Launchers"
+      ],
+      "icon": "launcher-grid/store/icon.svg"
     }
   ]
 }

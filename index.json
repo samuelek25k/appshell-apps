@@ -51,6 +51,26 @@
         "Launchers"
       ],
       "icon": "launcher-grid/store/icon.svg"
+    },
+    {
+      "id": "launcher-list",
+      "title": "Search Home",
+      "publisher": "Appshell",
+      "repository": "https://github.com/samuelek25k/appshell-apps",
+      "releases": [
+        {
+          "version": "0.1.0",
+          "channel": "stable",
+          "url": "https://github.com/samuelek25k/appshell-apps/releases/download/launcher-list-v0.1.0/launcher-list-0.1.0.tgz",
+          "sha256": "88c294151fad157843d5817baea7b8994618a6c9a24cd0d898052a8a5895bd04",
+          "commit": "73f45e1349cabc5a0900742a6967f4b30e22a1ca"
+        }
+      ],
+      "description": "A home screen that starts with a search box. Type to filter your apps, use the arrow keys and Enter to open one, and see your widgets as one-line summaries underneath. Running apps are listed first and marked with a dot.",
+      "categories": [
+        "Launchers"
+      ],
+      "icon": "launcher-list/store/icon.svg"
     }
   ]
 }

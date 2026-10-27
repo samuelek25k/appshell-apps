@@ -1,0 +1,21 @@
+{
+  "description": "Commercial construction management and decision intelligence platform. Features portfolio health radar, 5-jurisdiction regional compliance engines, project cost drill-downs, scope change orders, daily field diary, milestone retainage invoicing, and stock tracking.",
+  "categories": [
+    "Productivity",
+    "Business"
+  ],
+  "icon": "store/icon.svg",
+  "tagline": "Construction management & decision intelligence platform.",
+  "accent": "#2563eb",
+  "highlights": [
+    "Executive Portfolio Health Radar & Financing Exposure",
+    "Multi-region compliance (India GST, UAE VAT, US AIA, UK CIS, Saudi ZATCA)",
+    "Scope change orders and daily field diary",
+    "Milestone invoicing with automated retainage withholding",
+    "Appshell dashboard widget & offline persistence"
+  ],
+  "whatsNew": "Initial release.",
+  "screenshots": [
+    "store/screenshot-1.png"
+  ]
+}

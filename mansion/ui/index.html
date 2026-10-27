@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mansion Construction PMS</title>
+  <link rel="stylesheet" href="tailwind.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Top Global Header -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Active Tenant -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-teal-500 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-500/20">
+          M
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-extrabold tracking-tight text-slate-900 leading-none">Mansion</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/60">PMS</span>
+            <span id="badge-region" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+              IN
+            </span>
+          </div>
+          <p id="label-tenant" class="text-[11px] text-slate-500 truncate max-w-[160px] sm:max-w-xs mt-0.5 font-medium">Apex Commercial Builders</p>
+        </div>
+      </div>
+
+      <!-- High-Level Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/60 text-xs font-bold">
+        <button type="button" id="tab-btn-dashboard" class="nav-tab px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 bg-white text-blue-700 shadow-xs" data-target="view-dashboard">
+          <span>📊</span>
+          <span>Decision Radar</span>
+        </button>
+        <button type="button" id="tab-btn-operations" class="nav-tab px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900" data-target="view-operations">
+          <span>🏗️</span>
+          <span>Site Operations</span>
+        </button>
+        <button type="button" id="tab-btn-financials" class="nav-tab px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900" data-target="view-financials">
+          <span>💵</span>
+          <span>Financials</span>
+        </button>
+        <button type="button" id="tab-btn-stock" class="nav-tab px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900" data-target="view-stock">
+          <span>📦</span>
+          <span>Materials & Stock</span>
+        </button>
+      </nav>
+
+      <!-- Right Jurisdiction Selector & Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Jurisdiction Switcher -->
+        <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl">
+          <span class="text-xs">🌐</span>
+          <select id="select-jurisdiction" class="bg-transparent text-xs font-semibold text-slate-800 border-none outline-hidden cursor-pointer">
+            <option value="IN">India (IN &bull; ₹)</option>
+            <option value="AE">UAE (AE &bull; AED)</option>
+            <option value="SA">Saudi Arabia (SA &bull; SAR)</option>
+            <option value="US">USA (US &bull; $)</option>
+            <option value="UK">UK (UK &bull; £)</option>
+          </select>
+        </div>
+
+        <!-- Quick Create Dropdown / Button -->
+        <button type="button" id="btn-quick-create" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs transition-colors">
+          <span>+ Action</span>
+        </button>
+
+        <!-- Backup & Settings Button -->
+        <button type="button" id="btn-open-backup" title="Data Backup & Restore" class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200/60">
+          💾
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Sub-navigation Bar -->
+  <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between overflow-x-auto no-scrollbar gap-2">
+    <button type="button" class="mobile-nav-btn px-3 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white whitespace-nowrap" data-target="view-dashboard">📊 Radar</button>
+    <button type="button" class="mobile-nav-btn px-3 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-700 whitespace-nowrap" data-target="view-operations">🏗️ Operations</button>
+    <button type="button" class="mobile-nav-btn px-3 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-700 whitespace-nowrap" data-target="view-financials">💵 Financials</button>
+    <button type="button" class="mobile-nav-btn px-3 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-700 whitespace-nowrap" data-target="view-stock">📦 Stock</button>
+  </div>
+
+  <!-- Main View Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Active Jurisdiction Context Banner -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center text-lg">
+          🌐
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="banner-jurisdiction-name" class="text-sm font-extrabold tracking-tight">Active Jurisdiction: India Standard</h3>
+            <span id="banner-jurisdiction-code" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-bold uppercase">
+              IN Engine
+            </span>
+          </div>
+          <p id="banner-jurisdiction-details" class="text-xs text-slate-400 mt-0.5">
+            Tax Model: <strong class="text-slate-200">GST (18%)</strong> &bull; Retainage Policy: <strong class="text-slate-200">5%</strong> &bull; Currency: <strong class="text-slate-200">INR (₹)</strong> &bull; Cement Unit: <strong class="text-slate-200">bags (50kg)</strong>
+          </p>
+        </div>
+      </div>
+      <div id="banner-compliance-notes" class="text-[11px] text-slate-400 italic max-w-sm text-right hidden sm:block">
+        RERA milestone escrow & CGST/SGST/IGST tax invoicing format.
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 1: EXECUTIVE DECISION RADAR ==================== -->
+    <section id="view-dashboard" class="space-y-6">
+      
+      <!-- Top 4 Executive Radar Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Health Score Card -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-3xl shadow-md border border-slate-700/60 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-slate-400">Health Radar</span>
+            <span id="badge-health-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Optimal
+            </span>
+          </div>
+          <div class="my-3 flex items-baseline gap-2">
+            <span id="card-health-score" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">
+              85
+            </span>
+            <span class="text-xs font-semibold text-slate-400">/ 100 Index</span>
+          </div>
+          <div id="card-health-desc" class="text-[11px] text-slate-300">
+            Portfolio margin is healthy at <strong class="text-emerald-400">+22.4%</strong>.
+          </div>
+        </div>
+
+        <!-- Cash Financing Exposure -->
+        <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-slate-400">Financing Exposure</span>
+            <span id="badge-gap-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-800">
+              Self-Financed
+            </span>
+          </div>
+          <div class="my-3">
+            <span id="card-gap-amount" class="text-2xl font-black text-slate-900">₹320,000</span>
+            <p id="card-gap-desc" class="text-[11px] text-slate-500 mt-0.5">Capital currently advanced before billing receipts</p>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div id="card-gap-bar" class="bg-amber-500 h-2 rounded-full" style="width: 65%"></div>
+          </div>
+        </div>
+
+        <!-- Incurred vs Billed Burn -->
+        <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-slate-400">Revenue Billed</span>
+            <span id="card-billed-percent" class="text-xs font-bold text-blue-600 font-mono">54% Billed</span>
+          </div>
+          <div class="my-3">
+            <span id="card-total-billed" class="text-2xl font-black text-slate-900">₹4,850,000</span>
+            <p id="card-target-budget" class="text-[11px] text-slate-500 mt-0.5">Target Contract Value: ₹8,800,000</p>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div id="card-billed-bar" class="bg-blue-600 h-2 rounded-full" style="width: 55%"></div>
+          </div>
+        </div>
+
+        <!-- Budget Watchdog Flag -->
+        <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-slate-400">Budget Watchdog</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-50 text-blue-700">Actionable</span>
+          </div>
+          <div class="my-2">
+            <h4 id="card-watchdog-title" class="text-xs font-bold text-slate-900 truncate">Downtown Commercial Plaza</h4>
+            <span id="card-watchdog-desc" class="text-[11px] text-slate-500 block mt-0.5">
+              Consumed <strong>54%</strong> of overall allocated budget.
+            </span>
+          </div>
+          <div class="pt-1">
+            <span id="card-watchdog-badge" class="text-[11px] font-bold text-emerald-600">✓ Incurred costs within milestone scope</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Comparative Visual Velocity Rails -->
+      <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">Project Velocity & Cost Rail Breakdown</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Comparative visual progress of Incurred Actual Cost vs Collected Client Revenue against Budget Ceiling.</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-semibold">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-blue-600"></span> Incurred Actual Cost</div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span> Collected Revenue</div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-slate-300"></span> Budget Ceiling</div>
+          </div>
+        </div>
+
+        <!-- Rails Container -->
+        <div id="container-velocity-rails" class="space-y-6">
+          <!-- Dynamically Rendered Velocity Rails -->
+        </div>
+      </div>
+
+      <!-- Quick Summary Row: Recent Field Logs & Pending Scope Changes -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Recent Field Logs -->
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-extrabold text-slate-900">Latest Daily Site Diary Entries</h4>
+              <button type="button" class="text-xs text-blue-600 font-bold hover:underline" data-target="view-operations">View All &rarr;</button>
+            </div>
+            <div id="container-recent-logs" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Change Orders -->
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-extrabold text-slate-900">Pending Change Orders & Variations</h4>
+              <button type="button" class="text-xs text-blue-600 font-bold hover:underline" data-target="view-operations">Review All &rarr;</button>
+            </div>
+            <div id="container-pending-variations" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 2: SITE OPERATIONS ==================== -->
+    <section id="view-operations" class="hidden space-y-6">
+      
+      <!-- Operations Sub-Tabs -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <button type="button" id="subtab-projects" class="ops-subtab px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">Projects Directory</button>
+          <button type="button" id="subtab-variations" class="ops-subtab px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Change Orders & Variations</button>
+          <button type="button" id="subtab-sitelogs" class="ops-subtab px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Daily Field Diary</button>
+        </div>
+        <div>
+          <button type="button" id="btn-create-in-ops" class="px-3.5 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">
+            + New Project
+          </button>
+        </div>
+      </div>
+
+      <!-- Subview A: Projects Directory -->
+      <div id="ops-subview-projects" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="container-projects-cards">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Subview B: Change Orders & Variations -->
+      <div id="ops-subview-variations" class="hidden space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Commercial Change Orders</h3>
+              <p class="text-xs text-slate-500">Track client scope variations, subcontractor cost impact, and timeline delay sign-offs.</p>
+            </div>
+            <button type="button" id="btn-new-variation" class="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-xs">
+              + New Change Order
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Order #</th>
+                  <th class="py-2.5 px-3">Project</th>
+                  <th class="py-2.5 px-3">Variation Title</th>
+                  <th class="py-2.5 px-3">Type</th>
+                  <th class="py-2.5 px-3">Cost Impact</th>
+                  <th class="py-2.5 px-3">Delay Impact</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-variations-body" class="divide-y divide-slate-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subview C: Daily Field Diary -->
+      <div id="ops-subview-sitelogs" class="hidden space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Daily Field Diary & Weather Reports</h3>
+              <p class="text-xs text-slate-500">Log worker headcount, weather/temperature, concrete slump tests, and site progress.</p>
+            </div>
+            <button type="button" id="btn-new-sitelog" class="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-xs">
+              + New Site Diary Entry
+            </button>
+          </div>
+          <div id="container-sitelogs-list" class="space-y-4">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 3: FINANCIALS ==================== -->
+    <section id="view-financials" class="hidden space-y-6">
+      
+      <!-- Financials Sub-Tabs -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <button type="button" id="subtab-invoices" class="fin-subtab px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs">Milestone Invoicing & Retainage</button>
+          <button type="button" id="subtab-cashflow" class="fin-subtab px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Cash Flow & General Ledger</button>
+        </div>
+        <div>
+          <button type="button" id="btn-create-in-fin" class="px-3.5 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">
+            + New Invoice
+          </button>
+        </div>
+      </div>
+
+      <!-- Subview A: Invoices & Retention -->
+      <div id="fin-subview-invoices" class="space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Progress Billing & Retention Deductions</h3>
+              <p class="text-xs text-slate-500">Automated retainage withholding adhering to regional construction standards.</p>
+            </div>
+            <button type="button" id="btn-new-invoice" class="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-xs">
+              + Generate Progress Invoice
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Invoice #</th>
+                  <th class="py-2.5 px-3">Project & Milestone</th>
+                  <th class="py-2.5 px-3">Customer</th>
+                  <th class="py-2.5 px-3">Subtotal</th>
+                  <th class="py-2.5 px-3">Tax</th>
+                  <th class="py-2.5 px-3">Retainage</th>
+                  <th class="py-2.5 px-3">Net Due</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="table-invoices-body" class="divide-y divide-slate-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subview B: Cash Flow & General Ledger -->
+      <div id="fin-subview-cashflow" class="hidden space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Site Cash Flow & Bank Ledger</h3>
+              <p class="text-xs text-slate-500">Double-entry cash logs, site cash box vouchers, and subcontractor disbursements.</p>
+            </div>
+            <button type="button" id="btn-new-transaction" class="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-xs">
+              + Record Cash Transaction
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Date</th>
+                  <th class="py-2.5 px-3">From Account</th>
+                  <th class="py-2.5 px-3">To Account</th>
+                  <th class="py-2.5 px-3">Category</th>
+                  <th class="py-2.5 px-3">Type</th>
+                  <th class="py-2.5 px-3">Amount</th>
+                  <th class="py-2.5 px-3">Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="table-cashflow-body" class="divide-y divide-slate-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 4: MATERIALS & INVENTORY ==================== -->
+    <section id="view-stock" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-3xl shadow-xs border border-slate-200">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900">Multi-Site Inventory Matrix</h3>
+            <p class="text-xs text-slate-500">Track on-hand balances across central warehouse and site locations. Rebalance inventory with site transfers.</p>
+          </div>
+          <button type="button" id="btn-new-transfer" class="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-xs">
+            + Inter-Site Transfer / Issue Slip
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Material Item</th>
+                <th class="py-2.5 px-3">Category</th>
+                <th class="py-2.5 px-3">Unit</th>
+                <th class="py-2.5 px-3">Total On-Hand</th>
+                <th class="py-2.5 px-3">Central Warehouse</th>
+                <th class="py-2.5 px-3">Downtown Commercial</th>
+                <th class="py-2.5 px-3">Green Valley Villas</th>
+                <th class="py-2.5 px-3">Reorder Alert</th>
+              </tr>
+            </thead>
+            <tbody id="table-stock-body" class="divide-y divide-slate-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS & DRAWERS ==================== -->
+
+  <!-- Modal: Quick Action Selection -->
+  <dialog id="modal-quick-action" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-sm w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">Create New Record</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <div class="space-y-2">
+      <button type="button" id="action-opt-project" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center gap-3 transition-colors">
+        <span class="text-xl">🏗️</span>
+        <div>
+          <div class="text-xs font-bold text-slate-900">New Construction Project</div>
+          <div class="text-[11px] text-slate-500">Initiate budget ceiling, milestones & contractor</div>
+        </div>
+      </button>
+      <button type="button" id="action-opt-variation" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center gap-3 transition-colors">
+        <span class="text-xl">📝</span>
+        <div>
+          <div class="text-xs font-bold text-slate-900">New Scope Change Order</div>
+          <div class="text-[11px] text-slate-500">Subcontractor variation & timeline delay</div>
+        </div>
+      </button>
+      <button type="button" id="action-opt-sitelog" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center gap-3 transition-colors">
+        <span class="text-xl">📅</span>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Daily Site Diary Entry</div>
+          <div class="text-[11px] text-slate-500">Headcount, weather, slump test & progress</div>
+        </div>
+      </button>
+      <button type="button" id="action-opt-invoice" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center gap-3 transition-colors">
+        <span class="text-xl">🧾</span>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Progress Milestone Invoice</div>
+          <div class="text-[11px] text-slate-500">Generate invoice with retention withholding</div>
+        </div>
+      </button>
+      <button type="button" id="action-opt-transaction" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center gap-3 transition-colors">
+        <span class="text-xl">💵</span>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Record Cash Transaction</div>
+          <div class="text-[11px] text-slate-500">Bank RTGS to site cash box disbursement</div>
+        </div>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Modal: New Project -->
+  <dialog id="modal-project" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">New Construction Project</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <form id="form-new-project" class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold mb-1">Project Title</label>
+        <input type="text" id="proj-input-title" required placeholder="e.g. Skyline Heights Tower" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Client / Customer Name</label>
+        <input type="text" id="proj-input-client" required placeholder="e.g. Metro Real Estate Group" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Estimated Budget Ceiling (<span class="unit-currency">₹</span>)</label>
+          <input type="number" id="proj-input-budget" required min="1000" placeholder="5000000" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Status</label>
+          <select id="proj-input-status" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+            <option value="in_progress">In Progress</option>
+            <option value="planned">Planned</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Start Date</label>
+          <input type="date" id="proj-input-start" required class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Completion Target</label>
+          <input type="date" id="proj-input-end" required class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Scope Description</label>
+        <textarea id="proj-input-desc" rows="2" placeholder="Substructure piling, G+12 framing, HVAC and finishes..." class="w-full px-3 py-2 rounded-xl border border-slate-300"></textarea>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button type="submit" class="px-4 py-2 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">Create Project</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: New Scope Change Order -->
+  <dialog id="modal-variation" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">New Scope Change Order</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <form id="form-new-variation" class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold mb-1">Project</label>
+        <select id="var-input-project" class="w-full px-3 py-2 rounded-xl border border-slate-300"></select>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Variation Title / Scope Amendment</label>
+        <input type="text" id="var-input-title" required placeholder="e.g. Additional Subterranean Sump Tank Reinforcement" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Originating Party</label>
+          <select id="var-input-type" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+            <option value="Subcontractor">Subcontractor Variation</option>
+            <option value="Client">Client Scope Expansion</option>
+            <option value="Regulatory">Site Structural Revision</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Cost Impact (<span class="unit-currency">₹</span>)</label>
+          <input type="number" id="var-input-cost" required placeholder="120000" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Schedule Delay Impact (Days)</label>
+          <input type="number" id="var-input-delay" required placeholder="5" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Approval Status</label>
+          <select id="var-input-status" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+            <option value="Pending">Pending Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button type="submit" class="px-4 py-2 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">Record Change Order</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Daily Site Diary Entry -->
+  <dialog id="modal-sitelog" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">Daily Field Diary Entry</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <form id="form-new-sitelog" class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold mb-1">Project</label>
+        <select id="log-input-project" class="w-full px-3 py-2 rounded-xl border border-slate-300"></select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Date</label>
+          <input type="date" id="log-input-date" required class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Worker Headcount</label>
+          <input type="number" id="log-input-workers" required placeholder="32" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Weather & Temp</label>
+          <input type="text" id="log-input-weather" required placeholder="Sunny &bull; 32°C" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Concrete Slump (mm)</label>
+          <input type="number" id="log-input-slump" placeholder="110" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Work Accomplished Today</label>
+        <textarea id="log-input-work" required rows="2" placeholder="Pouring concrete for 3rd level slab, steel rebar bending..." class="w-full px-3 py-2 rounded-xl border border-slate-300"></textarea>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Safety & Inspection Notes</label>
+        <input type="text" id="log-input-safety" placeholder="Full PPE compliance. Structural engineer inspected rebar." class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button type="submit" class="px-4 py-2 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">Save Site Diary</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Milestone Invoice Generator -->
+  <dialog id="modal-invoice" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">Generate Progress Invoice</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <form id="form-new-invoice" class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold mb-1">Project</label>
+        <select id="inv-input-project" class="w-full px-3 py-2 rounded-xl border border-slate-300"></select>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Milestone Name</label>
+        <input type="text" id="inv-input-milestone" required placeholder="e.g. 3rd Floor Slab Cast & Inspected" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Milestone Amount (<span class="unit-currency">₹</span>)</label>
+        <input type="number" id="inv-input-amount" required placeholder="800000" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1 text-[11px]">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Tax (<span id="calc-tax-label">GST 18%</span>):</span>
+          <span id="calc-tax-val" class="font-mono font-bold">₹0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Retention Withheld (<span id="calc-ret-label">5%</span>):</span>
+          <span id="calc-ret-val" class="font-mono font-bold text-amber-700">₹0</span>
+        </div>
+        <div class="flex justify-between pt-1 border-t border-slate-200 text-slate-900 font-bold">
+          <span>Net Deliverable Due:</span>
+          <span id="calc-net-val" class="font-mono text-blue-700">₹0</span>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button type="submit" class="px-4 py-2 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">Generate Invoice</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Record Cash Transaction -->
+  <dialog id="modal-transaction" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">Record Cash Transaction</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <form id="form-new-tx" class="space-y-3 text-xs">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">From Account</label>
+          <input type="text" id="tx-input-from" required value="Corporate Bank Current A/C" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">To Account / Payee</label>
+          <input type="text" id="tx-input-to" required value="Site Petty Cash Box" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1">Type</label>
+          <select id="tx-input-type" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+            <option value="debit">Debit (Site Expense / Withdrawal)</option>
+            <option value="credit">Credit (Client Receipt / Inflow)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Amount (<span class="unit-currency">₹</span>)</label>
+          <input type="number" id="tx-input-amount" required placeholder="50000" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Expense Category</label>
+        <input type="text" id="tx-input-category" required value="Site Labour Daily Wages" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Remarks & Voucher Notes</label>
+        <input type="text" id="tx-input-remarks" placeholder="Wages for 22 carpenters & helpers for week 16" class="w-full px-3 py-2 rounded-xl border border-slate-300">
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button type="submit" class="px-4 py-2 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xs">Record Transaction</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Data Backup & Restore -->
+  <dialog id="modal-backup" class="p-6 bg-white rounded-3xl border border-slate-200 max-w-md w-full shadow-2xl backdrop:bg-black/50">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-extrabold text-sm text-slate-900">Data Management & Backup</h3>
+      <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-700 font-mono text-sm">✕</button>
+    </div>
+    <div class="space-y-4 text-xs">
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+        <h4 class="font-bold text-slate-800">Export Offline Data</h4>
+        <p class="text-[11px] text-slate-500 mt-0.5">Download full JSON snapshot including projects, change orders, field diary, invoices, and stock movements.</p>
+        <button type="button" id="btn-export-json" class="mt-3 px-3 py-1.5 font-bold bg-blue-600 text-white rounded-xl shadow-xs">Export Backup (.json)</button>
+      </div>
+
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+        <h4 class="font-bold text-slate-800">Import Offline Data</h4>
+        <p class="text-[11px] text-slate-500 mt-0.5">Restore data from a previously exported Mansion JSON file.</p>
+        <input type="file" id="input-import-json" accept=".json" class="mt-2 block w-full text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-blue-700">
+      </div>
+
+      <div class="p-4 bg-rose-50 rounded-2xl border border-rose-200">
+        <h4 class="font-bold text-rose-800">Reset to Demo Data</h4>
+        <p class="text-[11px] text-rose-600 mt-0.5">Restore original commercial demo records across all projects and journals.</p>
+        <button type="button" id="btn-reset-demo" class="mt-2 px-3 py-1.5 font-bold bg-rose-600 text-white rounded-xl shadow-xs">Reset Demo Records</button>
+      </div>
+    </div>
+  </dialog>
+
+</body>
+</html>

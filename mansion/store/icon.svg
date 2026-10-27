@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="50%" stop-color="#4338ca" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+    <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#93c5fd" />
+    </linearGradient>
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="128" height="128" rx="28" fill="url(#bgGrad)" />
+
+  <!-- Construction Framework / Mansion "M" Monogram -->
+  <g filter="url(#dropShadow)">
+    <!-- Central Apex Roof / Trusses -->
+    <path d="M 64 24 L 98 48 L 88 56 L 64 38 L 40 56 L 30 48 Z" fill="url(#roofGrad)" />
+    
+    <!-- Left Pillar / Upright Tower -->
+    <path d="M 30 48 L 42 56 L 42 100 L 30 100 Z" fill="url(#beamGrad)" />
+    
+    <!-- Right Pillar / Upright Tower -->
+    <path d="M 98 48 L 86 56 L 86 100 L 98 100 Z" fill="url(#beamGrad)" />
+
+    <!-- Center Arch V-Brace forming "M" -->
+    <path d="M 42 56 L 64 80 L 86 56 L 76 56 L 64 69 L 52 56 Z" fill="#ffffff" />
+
+    <!-- Foundation Slab Base Beam -->
+    <rect x="24" y="96" width="80" height="8" rx="3" fill="#ffffff" opacity="0.95" />
+
+    <!-- Architectural Grid Measurement Markers -->
+    <circle cx="64" cy="38" r="3" fill="#ffffff" />
+    <circle cx="36" cy="52" r="2.5" fill="#38bdf8" />
+    <circle cx="92" cy="52" r="2.5" fill="#38bdf8" />
+  </g>
+</svg>

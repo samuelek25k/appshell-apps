@@ -1,0 +1,27 @@
+{
+  "id": "mansion",
+  "version": "0.1.0",
+  "title": "Mansion Construction PMS",
+  "publisher": "Appshell",
+  "capabilities": {
+    "notifications": true,
+    "userEndpoints": true,
+    "network": [
+      "localhost",
+      "127.0.0.1",
+      "api.open-meteo.com"
+    ]
+  },
+  "engines": {
+    "appshell": "^0.1"
+  },
+  "entry": {
+    "ui": "ui/index.html"
+  },
+  "widgets": [
+    {
+      "id": "portfolio-health",
+      "title": "Portfolio Health"
+    }
+  ]
+}

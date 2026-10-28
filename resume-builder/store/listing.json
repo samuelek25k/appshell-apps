@@ -6,7 +6,8 @@
   ],
   "icon": "store/icon.svg",
   "screenshots": [
-    "store/screenshot-1.png"
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
   ],
   "tagline": "Write and export resumes with LLM assistance.",
   "accent": "#0284c7",

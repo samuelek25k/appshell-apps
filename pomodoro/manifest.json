@@ -1,13 +1,13 @@
 {
   "id": "pomodoro",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Pomodoro Timer",
   "publisher": "Appshell",
   "capabilities": {
     "notifications": true
   },
   "engines": {
-    "appshell": "^0.1"
+    "appshell": "^1"
   },
   "entry": {
     "ui": "ui/index.html"

@@ -1,25 +1,12 @@
 :root {
-  --bg: #f8fafc;
-  --panel: #ffffff;
-  --ink: #0f172a;
-  --quiet: #64748b;
-  --line: #e2e8f0;
-  --accent: #0284c7;
-  color-scheme: light dark;
-  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "SF Pro Text", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  --bg: var(--ui-bg);
+  --panel: var(--ui-panel);
+  --ink: var(--ui-ink);
+  --quiet: var(--ui-quiet);
+  --line: var(--ui-line);
+  --accent: var(--ui-accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #090d16;
-    --panel: #0f172a;
-    --ink: #f8fafc;
-    --quiet: #94a3b8;
-    --line: #1e293b;
-    --accent: #38bdf8;
-  }
-}
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -29,7 +16,7 @@ main { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 28px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }
 .badge {
   display: inline-flex;
@@ -39,7 +26,7 @@ main { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
   font-size: 11px;
   font-weight: 700;
   border-radius: 9999px;
-  background: rgba(14, 165, 233, 0.12);
+  background: var(--ui-accent-tint);
   color: var(--accent);
   margin-bottom: 12px;
 }

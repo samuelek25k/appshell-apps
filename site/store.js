@@ -82,6 +82,7 @@ function merge(catalog, catalogBase, listings, cdnBase = '') {
         .filter((k) => l[k] !== undefined).map((k) => [k, l[k]])),
       icon: (l.icon ? fromCdn(l.icon) : undefined) ?? c.icon,
       screenshots: l.screenshots?.length ? l.screenshots.map(fromCdn) : (c.screenshots ?? []),
+      screenshotsDark: l.screenshotsDark?.length ? l.screenshotsDark.map((/** @type {string | null} */ p) => (p ? fromCdn(p) : null)) : [],
       repository: c.repository ?? l.source,
       releases: c.releases ?? [],
     });
@@ -89,10 +90,15 @@ function merge(catalog, catalogBase, listings, cdnBase = '') {
   return [...byId.values()].sort((a, b) => Number(released(b)) - Number(released(a)) || a.title.localeCompare(b.title));
 }
 
-const framed = (src, alt = '') => el('div', { class: 'window shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden' }, [
+const framed = (src, alt = '', darkSrc = null) => el('div', { class: 'window shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden' }, [
   el('div', { class: 'window-bar', 'aria-hidden': 'true' }, [el('span'), el('span'), el('span')]),
-  el('img', { src, alt, loading: 'lazy' }),
+  ...(darkSrc
+    ? [el('img', { src, alt, loading: 'lazy', class: 'dark:hidden' }), el('img', { src: darkSrc, alt, loading: 'lazy', class: 'hidden dark:block' })]
+    : [el('img', { src, alt, loading: 'lazy' })]),
 ]);
+
+const shotSrc = (/** @type {any} */ app, /** @type {number} */ i) =>
+  (document.documentElement.classList.contains('dark') && app.screenshotsDark?.[i]) || app.screenshots[i];
 
 function scroller(track, label) {
   track.classList.add('track');
@@ -146,7 +152,7 @@ function spotlight(apps) {
       ]),
       el('div', { class: 'lg:col-span-5 w-full flex justify-center items-center' }, [
         app.screenshots?.length
-          ? framed(app.screenshots[0])
+          ? framed(app.screenshots[0], '', app.screenshotsDark?.[0])
           : el('div', { class: 'w-full max-w-sm p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center' }, [
               icon(app, 'large'),
               el('div', { class: 'mt-4 font-bold text-base text-slate-900 dark:text-white' }, [app.title]),
@@ -349,7 +355,7 @@ function gallery(app) {
   if (!app.screenshots?.length) return '';
   const { track, controls } = scroller(el('div', { class: 'grid grid-flow-col auto-cols-[85%] sm:auto-cols-[45%] gap-4 overflow-x-auto pb-4' }, app.screenshots.map((src, i) => {
     const b = el('button', { class: 'group text-left border-0 bg-transparent p-0 cursor-zoom-in', type: 'button', 'aria-label': `Enlarge screenshot ${i + 1}` }, [
-      framed(src, `${app.title} screenshot ${i + 1}`),
+      framed(src, `${app.title} screenshot ${i + 1}`, app.screenshotsDark?.[i]),
     ]);
     b.addEventListener('click', () => openLightbox(app, i));
     return b;
@@ -479,7 +485,7 @@ function openInstall(app, release) {
 const lightbox = { app: /** @type {any} */ (null), index: 0 };
 function showShot() {
   const { app, index } = lightbox;
-  $('lightbox-img').src = app.screenshots[index];
+  $('lightbox-img').src = shotSrc(app, index);
   $('lightbox-img').alt = `${app.title} screenshot ${index + 1}`;
   $('lightbox-count').textContent = `${index + 1} / ${app.screenshots.length}`;
   $('lightbox-prev').disabled = index === 0;

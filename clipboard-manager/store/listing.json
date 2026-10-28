@@ -12,5 +12,9 @@
     "Pin frequently used text",
     "Stored locally on your computer"
   ],
-  "whatsNew": "Initial release."
+  "whatsNew": "Initial release.",
+  "screenshots": [
+    "store/screenshot-1.png",
+    "store/screenshot-2.png"
+  ]
 }
